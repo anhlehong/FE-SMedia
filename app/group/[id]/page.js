@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useGroupDetails } from "../../hooks/useGroupDetails";
 import { showToast } from "../../utils/toast";
 
-// Import our component files
+// Import components
 import GroupHeader from "../../components/groups/groupHeader";
 import GroupDiscussionTab from "../../components/groups/groupDiscussionTab";
 import GroupMembersTab from "../../components/groups/groupMembersTab";
@@ -15,11 +15,23 @@ import GroupReport from "../../components/groups/groupReport";
 export default function GroupPage() {
     const params = useParams();
     const groupId = params.id;
+
     // State variables
     const [activeTab, setActiveTab] = useState("discussion");
     const [isMember, setIsMember] = useState(false);
 
-    // Use our custom hook to fetch group details
+    // fix: Memoize onSuccess callback to prevent re-creation on every render
+    const onSuccess = useCallback((data) => {
+        console.log("Group details loaded successfully:", data);
+    }, []);
+
+    // fix: Memoize onError callback to prevent re-creation on every render
+    const onError = useCallback((err) => {
+        showToast("Failed to load group details", "error");
+        console.error("Error loading group details:", err);
+    }, []);
+
+    // Use custom hook with memoized callbacks
     const {
         groupDetails,
         isLoading,
@@ -29,106 +41,106 @@ export default function GroupPage() {
         joinPublicGroup,
     } = useGroupDetails({
         groupId,
-        onSuccess: (data) => {
-            console.log("Group details loaded successfully:", data);
-        },
-        onError: (err) => {
-            showToast("Failed to load group details", "error");
-            console.error("Error loading group details:", err);
-        },
+        onSuccess,
+        onError,
     });
 
+    // fix: Add cleanup flag to avoid setting state if component unmounted
     useEffect(() => {
+        if (!groupId) return; // fix: guard clause to avoid invalid calls
+
+        let isMounted = true;
+
         const fetchToIsMember = async () => {
             try {
-                const request = await fetch(
-                    `/api/proxy/group-user/${groupId}`,
-                    {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
+                const request = await fetch(`/api/proxy/group-user/${groupId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
                 const data = await request.json();
                 console.log("User membership status:", data);
-                setIsMember(data);
+                if (isMounted) {
+                    setIsMember(data);
+                }
             } catch (error) {
                 console.error("Error fetching group user data:", error);
             }
         };
+
         fetchToIsMember();
+
+        // fix: cleanup function to set isMounted false on unmount
+        return () => {
+            isMounted = false;
+        };
     }, [groupId]);
 
-    // Function to handle joining a public group
-    const handleJoinPublicGroup = async () => {
+    // fix: Memoize handlers to avoid unnecessary re-renders or re-creations if passed down
+    const handleJoinPublicGroup = useCallback(async () => {
         try {
-            // Set loading state
             showToast("Đang xử lý yêu cầu tham gia...", "info");
             const result = await joinPublicGroup(groupId);
 
             if (result) {
-                // Show success message to the user
                 showToast("Bạn đã tham gia nhóm thành công!", "success");
-                // Refresh the group details
                 await fetchGroupDetails(groupId, true);
             }
         } catch (error) {
             console.error("Error joining group:", error);
             showToast("Không thể tham gia nhóm, vui lòng thử lại", "error");
         }
-    };
+    }, [groupId, joinPublicGroup, fetchGroupDetails]);
 
-    // Function to handle joining a private group (for future implementation)
-    const handleJoinPrivateGroup = () => {
+    const handleJoinPrivateGroup = useCallback(() => {
         showToast("Tính năng tham gia nhóm riêng tư sẽ sớm ra mắt", "info");
-    }; // Function to handle post approval
-    const handlePostApproval = async (postId, isApproved) => {
-        try {
-            // Show loading toast
-            showToast(
-                `Đang ${isApproved ? "chấp nhận" : "từ chối"} bài viết...`,
-                "info"
-            );
+    }, []);
 
-            // Call our proxy API endpoint
-            const response = await fetch("/api/proxy/group-posts/approve", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    groupId,
-                    postId,
-                    approve: isApproved,
-                }),
-            });
+    const handlePostApproval = useCallback(
+        async (postId, isApproved) => {
+            try {
+                showToast(
+                    `Đang ${isApproved ? "chấp nhận" : "từ chối"} bài viết...`,
+                    "info"
+                );
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(
-                    errorData.error ||
+                const response = await fetch("/api/proxy/group-posts/approve", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        groupId,
+                        postId,
+                        approve: isApproved,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(
+                        errorData.error ||
                         `Failed to ${isApproved ? "approve" : "reject"} post`
+                    );
+                }
+
+                showToast(
+                    `Bài viết đã được ${isApproved ? "chấp nhận" : "từ chối"}`,
+                    "success"
+                );
+            } catch (error) {
+                console.error(
+                    `Error ${isApproved ? "approving" : "denying"} post:`,
+                    error
+                );
+                showToast(
+                    `Không thể ${isApproved ? "chấp nhận" : "từ chối"
+                    } bài viết, vui lòng thử lại`,
+                    "error"
                 );
             }
-
-            // Success! Update UI and show success toast
-            showToast(
-                `Bài viết đã được ${isApproved ? "chấp nhận" : "từ chối"}`,
-                "success"
-            );
-            // The removePostFromList is now handled inside the GroupPendingPostsTab component
-        } catch (error) {
-            console.error(
-                `Error ${isApproved ? "approving" : "denying"} post:`,
-                error
-            );
-            showToast(
-                `Không thể ${
-                    isApproved ? "chấp nhận" : "từ chối"
-                } bài viết, vui lòng thử lại`,
-                "error"
-            );
-        }
-    };
+        },
+        [groupId]
+    );
 
     if (isLoading) {
         return (
@@ -157,7 +169,6 @@ export default function GroupPage() {
 
     return (
         <>
-            {/* Group Header Component */}
             <GroupHeader
                 groupDetails={groupDetails}
                 isMember={isMember}
@@ -168,30 +179,24 @@ export default function GroupPage() {
                 setActiveTab={setActiveTab}
             />
             <>
-                {" "}
-                {/* Discussion Tab */}
                 {activeTab === "discussion" && (
                     <GroupDiscussionTab
                         isMember={isMember}
                         groupId={groupId}
                     />
                 )}
-                {/* Members Tab */}
                 {activeTab === "members" && (
                     <GroupMembersTab groupDetails={groupDetails} />
                 )}
-                {/* About Tab */}
                 {activeTab === "about" && (
                     <GroupAboutTab groupDetails={groupDetails} />
                 )}
-                {/* Pending Posts Tab - Only show if user is admin */}
                 {activeTab === "pendingPosts" && (
                     <GroupPendingPostsTab
                         groupId={groupId}
                         handlePostApproval={handlePostApproval}
                     />
                 )}
-                {/* Report Tab */}
                 {activeTab === "report" && <GroupReport group={groupDetails} />}
             </>
         </>

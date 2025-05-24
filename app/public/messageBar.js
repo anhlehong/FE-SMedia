@@ -10,7 +10,9 @@ export default function MessageBar() {
     const [isOpen, setIsOpen] = useState(false);
     
     // Use the hook to fetch following users
-    const { followingUsers, isLoading, error, hasMore, loadMore } = useFollowing(0, 20);
+    // const { followingUsers, isLoading, error, hasMore, loadMore } = useFollowing(0, 20);
+    const { followingUsers, isLoading, error, hasMore, loadMore } = useFollowing(20); // ✅ chỉ truyền take
+
 
     const handleClickEntity = (id) => {
         setSelectedIndexEntity(id);
