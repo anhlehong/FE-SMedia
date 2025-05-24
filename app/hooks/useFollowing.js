@@ -7,12 +7,12 @@ import { showToast } from '../utils/toast';
  * Custom hook to fetch users that the current user is following
  * @returns {Object} Following users data and loading state
  */
-export function useFollowing(skip = 0, take = 10) {
+export function useFollowing(take = 10) {
   const [followingUsers, setFollowingUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasMore, setHasMore] = useState(true);
-  
+
   /**
    * Fetch users that the current user is following
    */
@@ -23,39 +23,34 @@ export function useFollowing(skip = 0, take = 10) {
       setHasMore(false);
       return;
     }
-    
-    // If refreshing, reset state
+
+    // fix: If refreshing, reset state
     if (refresh) {
       setFollowingUsers([]);
       setHasMore(true);
     }
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      // Calculate the skip value based on current items if not refreshing
-      const skipValue = refresh ? 0 : skip || followingUsers.length;
-      
+      // fix: skipValue is now computed here using current state instead of being passed in
+      const skipValue = refresh ? 0 : followingUsers.length;
+
       const response = await fetch(
         `/api/proxy/follow/following/${userInfo.userId}?skip=${skipValue}&take=${take}`
       );
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `Failed to fetch following users (${response.status})`);
       }
-      
+
       const data = await response.json();
-      
-      // Update state
-      if (refresh) {
-        setFollowingUsers(data);
-      } else {
-        setFollowingUsers((prev) => [...prev, ...data]);
-      }
-      
-      // Check if there are more items to load
+
+      // fix: Updated to handle refresh directly inside setFollowingUsers
+      setFollowingUsers((prev) => (refresh ? data : [...prev, ...data]));
+
       setHasMore(data.length === take);
     } catch (error) {
       console.error('Error fetching following users:', error);
@@ -64,13 +59,14 @@ export function useFollowing(skip = 0, take = 10) {
     } finally {
       setIsLoading(false);
     }
-  }, [skip, take, followingUsers.length]);
-  
-  // Load following users on initial mount
+    // fix: Removed `followingUsers.length` from dependency array to prevent infinite re-renders
+  }, [take]);
+
+  // fix: Now this effect only runs once on mount (or when `take` changes) instead of every re-render
   useEffect(() => {
     fetchFollowingUsers(true);
   }, [fetchFollowingUsers]);
-  
+
   /**
    * Load more users
    */
@@ -79,14 +75,14 @@ export function useFollowing(skip = 0, take = 10) {
       fetchFollowingUsers();
     }
   }, [isLoading, hasMore, fetchFollowingUsers]);
-  
+
   /**
    * Refresh the data
    */
   const refresh = useCallback(() => {
     fetchFollowingUsers(true);
   }, [fetchFollowingUsers]);
-  
+
   return {
     followingUsers,
     isLoading,
