@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { showToast } from '../utils/toast';
+import { useState } from "react";
+import { showToast } from "../utils/toast";
 
 /**
  * Custom hook for group-related functionality
@@ -16,7 +16,7 @@ export function useGroup({ onSuccess, onError } = {}) {
     totalGroups: 0,
     totalPages: 0,
     currentPage: 1,
-    pageSize: 10
+    pageSize: 10,
   });
 
   /**
@@ -29,18 +29,18 @@ export function useGroup({ onSuccess, onError } = {}) {
    */
   const createGroup = async (groupData) => {
     if (!groupData.groupName) {
-      showToast('Group name is required', 'error');
+      showToast("Group name is required", "error");
       return null;
     }
 
     setIsCreating(true);
-    
+
     try {
-      const apiUrl = '/api/proxy/group';
+      const apiUrl = "/api/proxy/group";
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(groupData),
       });
@@ -48,32 +48,32 @@ export function useGroup({ onSuccess, onError } = {}) {
       const data = await response.json();
 
       if (!response.ok) {
-        const errorMessage = data.error || 'Failed to create group';
-        showToast(errorMessage, 'error');
-        
+        const errorMessage = data.error || "Failed to create group";
+        showToast(errorMessage, "error");
+
         if (onError) {
           onError(data);
         }
-        
+
         return null;
       }
 
       // Show success message and call success callback
-      showToast('Group created successfully!', 'success');
-      
+      showToast("Group created successfully!", "success");
+
       if (onSuccess) {
         onSuccess(data);
       }
-      
+
       return data;
     } catch (error) {
-      showToast('Error creating group', 'error');
-      console.error('Group creation error:', error);
-      
+      showToast("Error creating group", "error");
+      console.error("Group creation error:", error);
+
       if (onError) {
         onError(error);
       }
-      
+
       return null;
     } finally {
       setIsCreating(false);
@@ -87,34 +87,40 @@ export function useGroup({ onSuccess, onError } = {}) {
    * @param {boolean} options.forceRefresh - Force refresh data with cache bypass (default: false)
    * @returns {Promise<Object>} Groups data or error
    */
-  const fetchGroups = async ({ page = 1, pageSize = 10, forceRefresh = false } = {}) => {
+  const fetchGroups = async ({
+    page = 1,
+    pageSize = 10,
+    forceRefresh = false,
+  } = {}) => {
     setIsLoading(true);
 
-    try {      // Add a cache buster when forceRefresh is true
-      const cacheBuster = forceRefresh ? `&_t=${Date.now()}` : '';
+    try {
+      // Add a cache buster when forceRefresh is true
+      const cacheBuster = forceRefresh ? `&_t=${Date.now()}` : "";
       const apiUrl = `/api/proxy/group?page=${page}&pageSize=${pageSize}${cacheBuster}`;
-      
+
       console.log(`Fetching groups with URL: ${apiUrl}`);
-      
+
       const response = await fetch(apiUrl, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         // Disable cache when force refreshing
-        cache: forceRefresh ? 'no-store' : 'default',
-      });const data = await response.json();
-      
-      console.log('API Response:', data);
+        cache: forceRefresh ? "no-store" : "default",
+      });
+      const data = await response.json();
+
+      console.log("API Response:", data);
 
       if (!response.ok) {
-        const errorMessage = data.error || 'Failed to fetch groups';
-        showToast(errorMessage, 'error');
-        
+        const errorMessage = data.error || "Failed to fetch groups";
+        showToast(errorMessage, "error");
+
         if (onError) {
           onError(data);
         }
-        
+
         return null;
       }
 
@@ -130,33 +136,38 @@ export function useGroup({ onSuccess, onError } = {}) {
         setGroups(data.data);
       } else {
         // Fallback for other structures, log and set empty array
-        console.error('Unexpected API response format:', data);
+        console.error("Unexpected API response format:", data);
         setGroups([]);
       }
-      
+
       // Update pagination information
       setPagination({
         totalGroups: data.totalGroups || data.total || data.count || 0,
-        totalPages: data.totalPages || Math.ceil((data.totalGroups || data.total || data.count || 0) / pageSize) || 0,
+        totalPages:
+          data.totalPages ||
+          Math.ceil(
+            (data.totalGroups || data.total || data.count || 0) / pageSize
+          ) ||
+          0,
         currentPage: page,
-        pageSize
+        pageSize,
       });
-      
+
       return data;
     } catch (error) {
-      showToast('Error fetching groups', 'error');
-      console.error('Group fetch error:', error);
-      
+      showToast("Error fetching groups", "error");
+      console.error("Group fetch error:", error);
+
       if (onError) {
         onError(error);
       }
-      
+
       return null;
     } finally {
       setIsLoading(false);
     }
   };
-    /**
+  /**
    * Search groups by name
    * @param {Object} options - Search options
    * @param {string} options.searchTerm - Term to search for in group names
@@ -165,35 +176,37 @@ export function useGroup({ onSuccess, onError } = {}) {
    * @returns {Promise<Object>} Search results or error
    */
   const searchGroups = async ({ searchTerm, page = 1, pageSize = 10 } = {}) => {
-    if (!searchTerm || searchTerm.trim() === '') {
-      showToast('Please enter a search term', 'error');
+    if (!searchTerm || searchTerm.trim() === "") {
+      showToast("Please enter a search term", "error");
       return null;
     }
 
     setIsLoading(true);
 
     try {
-      const apiUrl = `/api/proxy/groups/search?searchTerm=${encodeURIComponent(searchTerm)}&page=${page}&pageSize=${pageSize}`;
-      
+      const apiUrl = `/api/proxy/groups/search?searchTerm=${encodeURIComponent(
+        searchTerm
+      )}&page=${page}&pageSize=${pageSize}`;
+
       console.log(`Searching groups with URL: ${apiUrl}`);
-      
+
       const response = await fetch(apiUrl, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
-        const errorMessage = data.error || 'Failed to search groups';
-        showToast(errorMessage, 'error');
-        
+        const errorMessage = data.error || "Failed to search groups";
+        showToast(errorMessage, "error");
+
         if (onError) {
           onError(data);
         }
-        
+
         return null;
       }
 
@@ -203,27 +216,37 @@ export function useGroup({ onSuccess, onError } = {}) {
       } else if (data.groups && Array.isArray(data.groups)) {
         setGroups(data.groups);
       } else {
-        console.error('Unexpected search response format:', data);
+        console.error("Unexpected search response format:", data);
         setGroups([]);
       }
-      
+
       // Update pagination information
       setPagination({
-        totalGroups: data.totalGroups || data.total || (Array.isArray(data) ? data.length : 0),
-        totalPages: data.totalPages || Math.ceil((data.totalGroups || data.total || (Array.isArray(data) ? data.length : 0)) / pageSize) || 1,
+        totalGroups:
+          data.totalGroups ||
+          data.total ||
+          (Array.isArray(data) ? data.length : 0),
+        totalPages:
+          data.totalPages ||
+          Math.ceil(
+            (data.totalGroups ||
+              data.total ||
+              (Array.isArray(data) ? data.length : 0)) / pageSize
+          ) ||
+          1,
         currentPage: page,
-        pageSize
+        pageSize,
       });
-      
+
       return data;
     } catch (error) {
-      showToast('Error searching groups', 'error');
-      console.error('Group search error:', error);
-      
+      showToast("Error searching groups", "error");
+      console.error("Group search error:", error);
+
       if (onError) {
         onError(error);
       }
-      
+
       return null;
     } finally {
       setIsLoading(false);
@@ -239,7 +262,7 @@ export function useGroup({ onSuccess, onError } = {}) {
     searchGroups,
     isCreating,
     // Keep the old method name for backward compatibility
-    fetchToProxyApiCreateGroup: createGroup
+    fetchToProxyApiCreateGroup: createGroup,
   };
 }
 

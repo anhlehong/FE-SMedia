@@ -33,7 +33,6 @@ export async function GET(request) {
 
     // Construct the API URL based on whether we're fetching for specific user or current user
     const apiUrl = `${process.env.NEXT_PUBLIC_FQDN_BACKEND}/api/user-posts/${userId}`;
-    console.log("APPI:", apiUrl);
 
     // Make the request to the backend API
     const response = await axios.get(apiUrl, {

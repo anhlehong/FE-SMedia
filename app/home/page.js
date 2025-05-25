@@ -4,14 +4,29 @@ import FeedSection from "../components/feed/feedSection";
 import useUserPosts from "../hooks/useUserPosts";
 import { getAuthToken, getUserInfo, isAuthenticated } from "../utils/auth";
 import { useRouter } from "next/navigation";
+import useFollowing from "../hooks/useFollowing";
 
 export default function HomePage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingHome, setIsLoadingHome] = useState(true);
+  const [userIds, setUserIds] = useState([]);
+  const [shouldFetchPosts, setShouldFetchPosts] = useState(false);
 
   // Get user info safely with optional chaining
   const userInfo = getUserInfo();
   const userId = userInfo?.userId || null;
+
+  const { followingUsers, isLoading } = useFollowing(10);
+
+  useEffect(() => {
+    if (!isLoading && followingUsers.length > 0) {
+      setUserIds(followingUsers.map((user) => user.followed.userId));
+      setShouldFetchPosts(true);
+    }
+
+    console.log(followingUsers);
+    console.log("Is:", isLoading);
+  }, [followingUsers, isLoading]);
 
   // Check authentication on component mount
   useEffect(() => {
@@ -22,10 +37,11 @@ export default function HomePage() {
       router.push("/signin");
       return;
     }
-    setIsLoading(false);
+    setIsLoadingHome(false);
   }, [router, userId]);
 
   // Use the custom hook to fetch posts for the current user with infinite scrolling
+  // Fallback to 'guest' if userId is null
   const {
     posts,
     initialLoading,
@@ -34,7 +50,7 @@ export default function HomePage() {
     hasMore,
     loadMorePosts,
     refreshPosts,
-  } = useUserPosts(userId || "guest", 10); // Fallback to 'guest' if userId is null
+  } = useUserPosts(shouldFetchPosts ? userId || "guest" : null, 10, userIds);
 
   // Create an observer for infinite scrolling
   const observer = useRef();
@@ -58,7 +74,7 @@ export default function HomePage() {
   );
 
   // Show loading state when checking authentication
-  if (isLoading || !userId) {
+  if (isLoadingHome || !userId) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

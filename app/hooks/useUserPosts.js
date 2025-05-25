@@ -7,11 +7,13 @@ import axios from "axios";
 /**
  * Custom hook for fetching posts by user with infinite scrolling
  * @param {string} userId - The user ID to fetch posts for
+ * @param {Array} userIds
  * @param {number} pageSize - Number of posts to fetch per page
  * @returns {Object} - Posts data, loading state, and functions to load more posts
  */
-export default function useUserPosts(userId, pageSize = 10) {
+export default function useUserPosts(userId, pageSize = 10, userIds = []) {
   const [posts, setPosts] = useState([]);
+  //   const [userIds, setUserIds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,19 +21,17 @@ export default function useUserPosts(userId, pageSize = 10) {
   const [page, setPage] = useState(1);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const { followingUsers, isLoading, loadMore } = useFollowing(20);
-
   // Handle null userId scenario gracefully
   const validUserId = userId || null;
   // Function to fetch posts from API
   const fetchPosts = useCallback(
     async (pageNum = 1, shouldAppend = false) => {
-      if (!validUserId) {
-        setInitialLoading(false);
-        setLoading(false);
-        setError("No user ID provided");
-        return;
-      }
+      //   if (!validUserId) {
+      //     setInitialLoading(false);
+      //     setLoading(false);
+      //     setError("No user ID provided");
+      //     return;
+      //   }
 
       // Skip if not in browser environment
       if (typeof window === "undefined") {
@@ -60,7 +60,9 @@ export default function useUserPosts(userId, pageSize = 10) {
         const params = new URLSearchParams();
         params.append("page", pageNum);
         params.append("pageSize", pageSize);
-        const userIds = followingUsers.map((user) => user.followed.userId);
+        // const userIds = followingUsers.map((user) => user.followed.userId);
+        // console.log("Following Users:", followingUsers);
+        // console.log("Extracted User IDs:", userIds);
 
         const allUserIds = [validUserId, ...userIds].filter(Boolean);
 
@@ -73,6 +75,8 @@ export default function useUserPosts(userId, pageSize = 10) {
         const fetchedPosts = await Promise.all(postRequests);
 
         const postsData = fetchedPosts.flat();
+
+        console.log("post", postsData);
 
         if (
           !Array.isArray(postsData) ||
@@ -204,7 +208,7 @@ export default function useUserPosts(userId, pageSize = 10) {
     setPage(1);
     setHasMore(true);
     fetchPosts(1, false);
-  }, [validUserId, pageSize, refreshTrigger, fetchPosts]);
+  }, [validUserId, pageSize, refreshTrigger, userIds]);
 
   // Function to load more posts (for infinite scrolling)
   const loadMorePosts = useCallback(() => {

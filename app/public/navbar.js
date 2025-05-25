@@ -29,11 +29,7 @@ export default function NavBar() {
 
   return (
     <nav
-      className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 ease-in-out ${
-        isScrolled
-          ? "bg-white shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-gray-900 dark:bg-opacity-95"
-          : "bg-gradient-to-r from-blue-400 to-indigo-700 dark:from-gray-800 dark:to-gray-900"
-      }`}
+      className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 ease-in-out ${"bg-gradient-to-r from-blue-400 to-indigo-700 dark:from-gray-800 dark:to-gray-900"}`}
     >
       <div className="max-w-screen flex items-center justify-between mx-auto px-4 py-3">
         {/* Logo */}
@@ -46,11 +42,7 @@ export default function NavBar() {
               HCMUE
             </span>
             <span
-              className={`text-xs font-medium -mt-1 ${
-                isScrolled
-                  ? "text-gray-200 dark:text-gray-300"
-                  : "text-blue-200 dark:text-gray-300 group-hover:text-blue-300"
-              }`}
+              className={`text-xs font-medium -mt-1 ${"text-blue-200 dark:text-gray-300 group-hover:text-blue-300"}`}
             >
               Mạng xã hội sinh viên
             </span>
