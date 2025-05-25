@@ -1,13 +1,8 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
-import { showToast } from '../utils/toast';
-import { formatDistance } from 'date-fns';
+import { useState, useEffect, useCallback } from "react";
+import { showToast } from "../utils/toast";
+import { formatDistance } from "date-fns";
 
-/**
- * Custom hook for fetching group posts
- * @param {string} groupId - The ID of the group
- * @returns {Object} Group posts data and functions
- */
 export function useGroupPosts(groupId) {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,120 +11,91 @@ export function useGroupPosts(groupId) {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 10;
 
-  /**
-   * Format post data from API response to match the expected format for PostCard
-   */
-  const formatPostData = (apiPosts) => {
-    return apiPosts.map(post => ({
+  // Format dữ liệu trả về từ API
+  const formatPostData = useCallback((apiPosts) => {
+    return apiPosts.map((post) => ({
       id: post.postId,
       userId: post.userId,
-      user: post.userName || "User", // The API might not return userName, so we use a placeholder
+      user: post.userName || "User",
       avatar: post.userAvatar || "/person.png",
       content: post.content,
-      media: post.media ? post.media.map(m => ({
-        url: m.mediaUrl,
-        type: m.mediaType,
-      })) : [],
+      media: post.media
+        ? post.media.map(({ mediaUrl, mediaType }) => ({
+            url: mediaUrl,
+            type: mediaType,
+          }))
+        : [],
       likes: post.voteCount,
       comments: post.commentCount,
-      time: formatDistance(new Date(post.postedAt), new Date(), { addSuffix: true }),
+      time: formatDistance(new Date(post.postedAt), new Date(), {
+        addSuffix: true,
+      }),
       isLiked: post.isVotedByCurrentUser,
       postedAt: post.postedAt,
-      // Add any other fields needed by PostCard
     }));
-  };
-  /**
-   * Fetch posts for a specific group
-   * @param {boolean} refresh - Whether to refresh and reset pagination
-   */
-  const fetchGroupPosts = useCallback(async (refresh = false) => {
-    if (!groupId) return;
-    
-    // If refreshing, reset pagination
-    if (refresh) {
-      setPage(1);
-      setHasMore(true);
-    }
-    
-    // Don't fetch if there are no more posts and we're not refreshing
-    if (!hasMore && !refresh) return;
-    
-    const currentPage = refresh ? 1 : page;
-    
-    setIsLoading(true);
-    setError(null);    try {
-      const response = await fetch(`/api/proxy/group-posts/${groupId}?page=${currentPage}&pageSize=${pageSize}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  }, []);
 
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch group posts');
-      }
+  // Hàm tải dữ liệu từ API
+  const fetchGroupPosts = useCallback(
+    async (refresh = false) => {
+      if (!groupId || isLoading) return;
 
-      // If we get fewer posts than requested, there are no more posts
-      if (data.length < pageSize) {
-        setHasMore(false);
-      }
-      
-      // Format the data to match the PostCard component expectations
-      const formattedPosts = formatPostData(data);
-      
-      if (refresh) {
-        setPosts(formattedPosts);
-      } else {
-        setPosts(prevPosts => [...prevPosts, ...formattedPosts]);
-      }
-      
-      // Only increment page if not refreshing
-      if (!refresh) {
-        setPage(prev => prev + 1);
-      }
-    } catch (error) {
-      console.error('Error fetching group posts:', error);
-      setError(error.message);
-      showToast(error.message, 'error');    } finally {
-      setIsLoading(false);
-    }
-  }, [groupId, page, hasMore, pageSize]);
+      const currentPage = refresh ? 1 : page;
+      setIsLoading(true);
+      setError(null);
 
-  /**
-   * Load more posts (pagination)
-   */
+      try {
+        const response = await fetch(
+          `/api/proxy/group-posts/${groupId}?page=${currentPage}&pageSize=${pageSize}`,
+          { method: "GET", headers: { "Content-Type": "application/json" } }
+        );
+
+        const data = await response.json();
+        if (!response.ok)
+          throw new Error(data.error || "Không thể tải bài đăng");
+
+        setHasMore(data.length >= pageSize);
+        const formattedPosts = formatPostData(data);
+
+        setPosts((prevPosts) =>
+          refresh ? formattedPosts : [...prevPosts, ...formattedPosts]
+        );
+        if (!refresh) setPage((prev) => prev + 1);
+      } catch (error) {
+        console.error("Lỗi tải bài đăng nhóm:", error);
+        setError(error.message);
+        showToast(error.message, "error");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [groupId, page, formatPostData]
+  );
+
+  // Hàm tải thêm bài đăng (cuộn vô hạn)
   const loadMorePosts = useCallback(() => {
-    if (!isLoading && hasMore) {
-      fetchGroupPosts();
-    }
-  }, [fetchGroupPosts, isLoading, hasMore]);
+    if (hasMore && !isLoading) fetchGroupPosts();
+  }, [hasMore, isLoading, fetchGroupPosts]);
 
-  /**
-   * Refresh the posts list
-   */
+  // Làm mới danh sách bài đăng
   const refreshPosts = useCallback(() => {
     fetchGroupPosts(true);
   }, [fetchGroupPosts]);
 
-  /**
-   * Add a new post to the list
-   * @param {Object} newPost - The new post to add
-   */
+  // Thêm bài đăng mới vào danh sách
   const addPost = useCallback((newPost) => {
-    setPosts(prevPosts => [newPost, ...prevPosts]);
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
   }, []);
-  // Initial fetch when groupId changes
+
+  // Chỉ tải dữ liệu **khi groupId thay đổi**
   useEffect(() => {
     if (groupId) {
-      // Reset everything when groupId changes
       setPosts([]);
       setPage(1);
       setHasMore(true);
       fetchGroupPosts(true);
     }
-  }, [groupId, fetchGroupPosts]);
+  }, [groupId]); // Giảm dependencies để tránh gọi lại không cần thiết
 
   return {
     posts,
@@ -138,6 +104,6 @@ export function useGroupPosts(groupId) {
     hasMore,
     loadMorePosts,
     refreshPosts,
-    addPost
+    addPost,
   };
 }

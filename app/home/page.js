@@ -113,8 +113,6 @@ export default function HomePage() {
     return postDate.toLocaleDateString();
   }
 
-  //
-
   return (
     <>
       <FeedSection
