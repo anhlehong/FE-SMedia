@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import FeedSection from "../components/feed/feedSection";
 import useUserPosts from "../hooks/useUserPosts";
-import { getUserInfo, isAuthenticated } from "../utils/auth";
+import { getAuthToken, getUserInfo, isAuthenticated } from "../utils/auth";
 import { useRouter } from "next/navigation";
 
 export default function HomePage() {

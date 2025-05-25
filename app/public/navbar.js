@@ -32,7 +32,7 @@ export default function NavBar() {
       className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 ease-in-out ${
         isScrolled
           ? "bg-white shadow-lg backdrop-blur-md bg-opacity-95 dark:bg-gray-900 dark:bg-opacity-95"
-          : "bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-gray-800 dark:to-gray-900"
+          : "bg-gradient-to-r from-blue-400 to-indigo-700 dark:from-gray-800 dark:to-gray-900"
       }`}
     >
       <div className="max-w-screen flex items-center justify-between mx-auto px-4 py-3">
@@ -41,27 +41,29 @@ export default function NavBar() {
           <div className="overflow-hidden rounded-lg h-10 w-10 bg-white p-1 shadow-md transition-transform duration-300 group-hover:scale-110">
             <Image src="/hcmueLogo.png" width={36} height={36} alt="Logo" />
           </div>
-          <span className="text-xl text-blue-100 dark:text-gray-300 font-bold tracking-tight transition-colors duration-300 group-hover:text-blue-500">
-            HCMUE
-          </span>
-          <span
-            className={`text-xs font-medium -mt-1 ${
-              isScrolled
-                ? "text-gray-600 dark:text-gray-300"
-                : "text-blue-100 dark:text-gray-300"
-            }`}
-          >
-            Mạng xã hội sinh viên
-          </span>
+          <div className="flex flex-col">
+            <span className="text-xl text-blue-200 dark:text-gray-300 font-bold tracking-tight transition-colors duration-300 group-hover:text-blue-300">
+              HCMUE
+            </span>
+            <span
+              className={`text-xs font-medium -mt-1 ${
+                isScrolled
+                  ? "text-gray-200 dark:text-gray-300"
+                  : "text-blue-200 dark:text-gray-300 group-hover:text-blue-300"
+              }`}
+            >
+              Mạng xã hội sinh viên
+            </span>
+          </div>
         </Link>
 
         {/* Navigation */}
-        <div className="hidden md:flex space-x-8">
+        <div className="hidden md:flex space-x-8 text-white dark:text-blue-100">
           {navigationLinks.map((item) => (
             <Link
               key={item.link}
               href={`/${item.link}`}
-              className="relative font-medium hover:text-blue-500 transition-colors group"
+              className="relative font-medium dark:hover:text-blue-500 hover:text-blue-200 transition-colors group"
             >
               {item.label}
               <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-blue-500 transition-all group-hover:w-full"></span>
