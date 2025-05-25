@@ -26,12 +26,12 @@ export default function useUserPosts(userId, pageSize = 10, userIds = []) {
   // Function to fetch posts from API
   const fetchPosts = useCallback(
     async (pageNum = 1, shouldAppend = false) => {
-      //   if (!validUserId) {
-      //     setInitialLoading(false);
-      //     setLoading(false);
-      //     setError("No user ID provided");
-      //     return;
-      //   }
+      if (!validUserId) {
+        setInitialLoading(false);
+        setLoading(false);
+        setError("No user ID provided");
+        return;
+      }
 
       // Skip if not in browser environment
       if (typeof window === "undefined") {
@@ -151,12 +151,12 @@ export default function useUserPosts(userId, pageSize = 10, userIds = []) {
                           userData.avatar ||
                           userDetails.profileImage,
                       };
-                      console.log(
-                        `Fetched user details for post ${
-                          post.postId || post.id
-                        }:`,
-                        userDetails
-                      );
+                      // console.log(
+                      //   `Fetched user details for post ${
+                      //     post.postId || post.id
+                      //   }:`,
+                      //   userDetails
+                      // );
                     }
                   } catch (error) {
                     console.warn(
@@ -205,10 +205,11 @@ export default function useUserPosts(userId, pageSize = 10, userIds = []) {
 
   // Initial load - fetch first page when component mounts or when userId/pageSize/refreshTrigger changes
   useEffect(() => {
+    if (!validUserId) return;
     setPage(1);
     setHasMore(true);
     fetchPosts(1, false);
-  }, [validUserId, pageSize, refreshTrigger, userIds]);
+  }, [validUserId, pageSize, refreshTrigger]);
 
   // Function to load more posts (for infinite scrolling)
   const loadMorePosts = useCallback(() => {

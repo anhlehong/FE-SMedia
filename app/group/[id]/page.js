@@ -177,6 +177,7 @@ export default function GroupPage() {
         groupDetails={groupDetails}
         isMember={isMember}
         isJoining={isJoining}
+        fetchGroupDetails={fetchGroupDetails}
         handleJoinPublicGroup={handleJoinPublicGroup}
         handleJoinPrivateGroup={handleJoinPrivateGroup}
         activeTab={activeTab}

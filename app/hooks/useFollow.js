@@ -1,7 +1,7 @@
 "use client";
-import { useState, useCallback } from 'react';
-import { showToast } from '../utils/toast';
-import { getUserInfo } from '../utils/auth';
+import { useState, useCallback } from "react";
+import { showToast } from "../utils/toast";
+import { getUserInfo } from "../utils/auth";
 
 /**
  * Custom hook for handling follow/unfollow functionality
@@ -17,8 +17,8 @@ export function useFollow() {
    */
   const followUser = useCallback(async (followedId) => {
     if (!followedId) {
-      setError('User ID is required');
-      showToast('User ID is required', 'error');
+      setError("User ID is required");
+      showToast("User ID is required", "error");
       return null;
     }
 
@@ -28,32 +28,32 @@ export function useFollow() {
     try {
       const userInfo = getUserInfo();
       if (!userInfo || !userInfo.userId) {
-        throw new Error('You must be logged in to follow users');
+        throw new Error("You must be logged in to follow users");
       }
 
-      const response = await fetch('/api/proxy/follow', {
-        method: 'POST',
+      const response = await fetch("/api/proxy/follow", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           followerId: userInfo.userId,
-          followedId
+          followedId,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to follow user');
+        throw new Error(data.error || "Failed to follow user");
       }
 
-      showToast('Đã theo dõi thành công!', 'success');
+      showToast("Đã theo dõi thành công!", "success");
       return data;
     } catch (error) {
-      console.error('Error following user:', error);
+      console.error("Error following user:", error);
       setError(error.message);
-      showToast(error.message, 'error');
+      showToast(error.message, "error");
       return null;
     } finally {
       setIsLoading(false);
@@ -66,42 +66,44 @@ export function useFollow() {
    */
   const unfollowUser = useCallback(async (followedId) => {
     if (!followedId) {
-      setError('User ID is required');
-      showToast('User ID is required', 'error');
+      setError("User ID is required");
+      showToast("User ID is required", "error");
       return null;
     }
 
     setIsLoading(true);
     setError(null);
 
+    console.log(followedId);
+
     try {
       const userInfo = getUserInfo();
       if (!userInfo || !userInfo.userId) {
-        throw new Error('You must be logged in to unfollow users');
+        throw new Error("You must be logged in to unfollow users");
       }
 
       const followerId = userInfo.userId;
       const url = `/api/proxy/follow?followerId=${followerId}&followedId=${followedId}`;
 
       const response = await fetch(url, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to unfollow user');
+        throw new Error(data.error || "Failed to unfollow user");
       }
 
-      showToast('Đã hủy theo dõi thành công!', 'success');
+      showToast("Đã hủy theo dõi thành công!", "success");
       return data;
     } catch (error) {
-      console.error('Error unfollowing user:', error);
+      console.error("Error unfollowing user:", error);
       setError(error.message);
-      showToast(error.message, 'error');
+      showToast(error.message, "error");
       return null;
     } finally {
       setIsLoading(false);
@@ -120,12 +122,14 @@ export function useFollow() {
       const userInfo = getUserInfo();
       if (!userInfo || !userInfo.userId) return false;
 
-      const response = await fetch(`/api/proxy/follow/check?followerId=${userInfo.userId}&followedId=${followedId}`);
+      const response = await fetch(
+        `/api/proxy/follow/check?followerId=${userInfo.userId}&followedId=${followedId}`
+      );
       const data = await response.json();
 
       return response.ok && data;
     } catch (error) {
-      console.error('Error checking follow status:', error);
+      console.error("Error checking follow status:", error);
       return false;
     }
   }, []);
@@ -135,7 +139,7 @@ export function useFollow() {
     unfollowUser,
     checkFollowStatus,
     isLoading,
-    error
+    error,
   };
 }
 

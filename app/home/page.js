@@ -23,9 +23,6 @@ export default function HomePage() {
       setUserIds(followingUsers.map((user) => user.followed.userId));
       setShouldFetchPosts(true);
     }
-
-    console.log(followingUsers);
-    console.log("Is:", isLoading);
   }, [followingUsers, isLoading]);
 
   // Check authentication on component mount
