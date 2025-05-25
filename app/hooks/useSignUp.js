@@ -249,11 +249,11 @@ export default function useSignUp() {    const [formData, setFormData] = useStat
                     return;
                 }
                 
-                if (!isCorrectEmail(formData.email)) {
-                    setFormError(errorEmailStructure);
-                    setIsSubmitting(false);
-                    return;
-                }
+                // if (!isCorrectEmail(formData.email)) {
+                //     setFormError(errorEmailStructure);
+                //     setIsSubmitting(false);
+                //     return;
+                // }
                 
                 if (!isPasswordMatchRepassword(formData.password, formData.repassword)) {
                     setFormError(errorPasswordMismatch);
