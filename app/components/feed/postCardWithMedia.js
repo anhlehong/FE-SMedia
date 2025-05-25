@@ -5,6 +5,12 @@ import Link from "next/link";
 import { showToast } from "../../utils/toast";
 import useComment from "../../hooks/useComment";
 import useVote from "../../hooks/useVote";
+import {
+  HandThumbUpIcon as OutlineThumbUp,
+  ChatBubbleOvalLeftIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+} from "@heroicons/react/24/outline";
+import { HandThumbUpIcon as SolidThumbUp } from "@heroicons/react/24/solid";
 
 export default function PostCard({ post, onLike }) {
   const [showComments, setShowComments] = useState(false);
@@ -44,6 +50,7 @@ export default function PostCard({ post, onLike }) {
     const currentNestLevel = Math.min(nestLevel, maxNestLevel);
 
     // Handle both text and content fields (API returns content, our local state uses text)
+    const commentImg = comment.image;
     const commentText = comment.content || comment.text;
     const commentUser = comment.user || "Người dùng không xác định";
     const commentTime = comment.time || formatRelativeTime(comment.postedAt);
@@ -55,6 +62,13 @@ export default function PostCard({ post, onLike }) {
         <div className="flex">
           {/* <div className="w-8 h-8 rounded-full bg-gray-300 mr-2 flex-shrink-0">
                     </div> */}
+          <div className="mr-2">
+            <img
+              className="w-8 h-8 rounded-full object-cover border-2 border-gray-100 shadow-sm group-hover:border-blue-100 transition-colors"
+              src={commentImg || "/person.png"}
+              alt={commentUser}
+            />
+          </div>
           <div className="flex-1">
             <div
               className={`bg-gray-100 rounded-2xl py-2 px-3 max-w-[95%] ${
@@ -310,16 +324,20 @@ export default function PostCard({ post, onLike }) {
 
       {/* Post stats */}
       <div className="flex justify-between text-sm text-gray-500 mb-3">
-        <div>
+        <div className="flex">
           <span
-            className={`inline-block mr-1 ${isVoted ? "text-blue-500" : ""}`}
+            className={`inline-block mr-1 ${
+              isVoted ? "text-white bg-blue-500 rounded-full p-1" : ""
+            }`}
           >
-            ⬆️
+            <SolidThumbUp className="h-3 w-3" />
           </span>
           {voteCount} {voteCount === 1 ? "lượt thích" : "lượt thích"}
         </div>
-        <div>
-          <span className="inline-block mr-1">💬</span>
+        <div className="flex">
+          <span className="inline-block mr-1">
+            <ChatBubbleOvalLeftEllipsisIcon className="w-5 h-5" />
+          </span>
           {/* {comments.length} {comments.length === 1 ? 'bình luận' : 'bình luận'} */}
           {post.comments} {post.comments === 1 ? "bình luận" : "bình luận"}
         </div>
@@ -335,15 +353,22 @@ export default function PostCard({ post, onLike }) {
           aria-label={isVoted ? "Bỏ thích" : "Thích bài viết này"}
         >
           <span className="mr-2" role="img" aria-label="vote">
-            {isVoted ? "⬆️" : "👍"}
+            {isVoted ? (
+              <SolidThumbUp className="h-5 w-5" />
+            ) : (
+              <OutlineThumbUp className="h-5 w-5" />
+            )}
           </span>
-          {isVoted ? "Đã thích" : "Thích"}
+          Thích
         </button>
         <button
           onClick={handleToggleComments}
           className="flex-1 flex items-center justify-center py-2 hover:bg-gray-100 rounded-lg"
         >
-          <span className="mr-2">💬</span> Bình luận
+          <span className="mr-2">
+            <ChatBubbleOvalLeftIcon className="h-5 w-5" />
+          </span>{" "}
+          Bình luận
           {isLoadingComments && <span className="ml-1 animate-pulse">...</span>}
         </button>
       </div>

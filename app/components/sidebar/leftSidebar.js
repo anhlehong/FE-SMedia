@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import useMyGroups from "@/app/hooks/useMyGroups";
 
 export default function LeftSidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [groups, setGroups] = useState([]);
+  const { groups, loading, error, refreshGroups } = useMyGroups();
 
   // Đóng sidebar trên màn hình lớn
   useEffect(() => {
@@ -18,29 +19,9 @@ export default function LeftSidebar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Gọi API lấy danh sách nhóm
   useEffect(() => {
-    async function fetchMyGroups() {
-      try {
-        const response = await fetch("/api/proxy/groups/my-groups", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        console.log("My Groups:", data);
-        setGroups(data); // Cập nhật danh sách nhóm vào state
-      } catch (error) {
-        console.error("Failed to fetch my groups:", error);
-      }
-    }
-
-    fetchMyGroups();
-  }, []); // Chỉ chạy khi component mount
+    console.log("Groups updated:", groups);
+  }, [groups]);
 
   return (
     <>
@@ -75,33 +56,39 @@ export default function LeftSidebar() {
         {/* Danh sách nhóm */}
         <div className="mb-4">
           <h3 className="font-semibold text-gray-500 mb-2">Nhóm của bạn</h3>
-          <div className="space-y-2">
-            {groups.length > 0 ? (
-              groups.map((group) => (
-                <Link
-                  key={group.groupId}
-                  href={`/group/${group.groupId}`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <div className="p-2 hover:bg-blue-50 rounded-md hover:text-blue-600">
-                    <div className="flex gap-2 items-center">
-                      <Image
-                        src={group.image || "/group.jpg"}
-                        alt={group.groupName}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded mr-2"
-                        unoptimized={group.image ? false : true}
-                      />
-                      <span>{group.groupName}</span>
+          {loading ? (
+            <div className="flex justify-center py-2">
+              <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {groups.length > 0 ? (
+                groups.map((group) => (
+                  <Link
+                    key={group.groupId}
+                    href={`/group/${group.groupId}`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <div className="p-2 hover:bg-blue-50 rounded-md hover:text-blue-600">
+                      <div className="flex gap-2 items-center">
+                        <Image
+                          src={group.image || "/group.jpg"}
+                          alt={group.groupName}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded mr-2 object-cover"
+                          unoptimized={group.image ? false : true}
+                        />
+                        <span>{group.groupName}</span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <p className="text-gray-500">Bạn chưa tham gia nhóm nào.</p>
-            )}
-          </div>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-gray-500">Bạn chưa tham gia nhóm nào.</p>
+              )}
+            </div>
+          )}
         </div>
       </aside>
     </>

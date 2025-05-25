@@ -3,10 +3,17 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import UserAvatar from "../components/UserAvatar";
+import {
+  HomeIcon,
+  UsersIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
+import { usePathname } from "next/navigation";
 
 export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,16 +29,28 @@ export default function NavBar() {
   };
 
   const navigationLinks = [
-    { label: "Trang chủ", link: "home" },
-    { label: "Bạn bè", link: "friends" },
-    { label: "Nhóm", link: "groups" },
+    {
+      label: "Trang chủ",
+      link: "home",
+      icon: <HomeIcon className="h-5 w-5 mr-2" />,
+    },
+    {
+      label: "Bạn bè",
+      link: "friends",
+      icon: <UsersIcon className="h-5 w-5 mr-2" />,
+    },
+    {
+      label: "Nhóm",
+      link: "groups",
+      icon: <UserGroupIcon className="h-5 w-5 mr-2" />,
+    },
   ];
 
   return (
     <nav
       className={`fixed w-full z-50 top-0 left-0 transition-all duration-500 ease-in-out ${"bg-gradient-to-r from-blue-400 to-indigo-700 dark:from-gray-800 dark:to-gray-900"}`}
     >
-      <div className="max-w-screen flex items-center justify-between mx-auto px-4 py-3">
+      <div className="max-w-screen flex items-center justify-between mx-auto px-4 py-2">
         {/* Logo */}
         <Link href="/home" className="flex items-center space-x-3 group">
           <div className="overflow-hidden rounded-lg h-10 w-10 bg-white p-1 shadow-md transition-transform duration-300 group-hover:scale-110">
@@ -51,16 +70,30 @@ export default function NavBar() {
 
         {/* Navigation */}
         <div className="hidden md:flex space-x-8 text-white dark:text-blue-100">
-          {navigationLinks.map((item) => (
-            <Link
-              key={item.link}
-              href={`/${item.link}`}
-              className="relative font-medium dark:hover:text-blue-500 hover:text-blue-200 transition-colors group"
-            >
-              {item.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-blue-500 transition-all group-hover:w-full"></span>
-            </Link>
-          ))}
+          {navigationLinks.map((item) => {
+            const isActive = pathname === `/${item.link}`; // Kiểm tra nếu đường dẫn trùng
+
+            return (
+              <Link
+                key={item.link}
+                href={`/${item.link}`}
+                className={`relative font-medium w-28 justify-center flex h-full py-4 rounded-md transition-colors group 
+                    ${
+                      isActive
+                        ? "bg-blue-100/40  dark:bg-gray-500"
+                        : "hover:bg-blue-100/40 dark:hover:bg-gray-500"
+                    }
+                `}
+                title={item.label}
+              >
+                {item.icon}
+                {/* Hiển thị thanh underline nếu đang ở trang hiện tại */}
+                {/* {isActive && (
+                  <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-blue-500 transition-all"></span>
+                )} */}
+              </Link>
+            );
+          })}
         </div>
 
         {/* User & Menu */}

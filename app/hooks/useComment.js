@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { showToast } from '../utils/toast';
+import { useState } from "react";
+import { showToast } from "../utils/toast";
 
 /**
  * Custom hook for managing comments functionality
@@ -27,7 +27,7 @@ export function useComment({ postId, initialComments = [] }) {
     try {
       // Prepare request body
       const requestBody = {
-        content: content
+        content: content,
       };
 
       // Add parentCommentId if it's a reply
@@ -37,11 +37,11 @@ export function useComment({ postId, initialComments = [] }) {
 
       // Send request to proxy API endpoint
       const response = await fetch(`/api/proxy/post-comment/${postId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
       // Parse response
@@ -49,30 +49,34 @@ export function useComment({ postId, initialComments = [] }) {
 
       // Handle error response
       if (!response.ok) {
-        const errorMessage = data.error || `Failed to add comment (${response.status})`;
-        
+        const errorMessage =
+          data.error || `Failed to add comment (${response.status})`;
+
         if (response.status === 401) {
-          showToast('Please log in to add comments', 'error');
+          showToast("Please log in to add comments", "error");
         } else if (response.status === 403) {
-          showToast('You don\'t have permission to comment on this post', 'error');
+          showToast(
+            "You don't have permission to comment on this post",
+            "error"
+          );
         } else if (response.status === 404) {
-          showToast('The post was not found or has been deleted', 'error');
+          showToast("The post was not found or has been deleted", "error");
         } else {
-          showToast(errorMessage, 'error');
+          showToast(errorMessage, "error");
         }
-        
-        console.error('Error adding comment:', errorMessage);
+
+        console.error("Error adding comment:", errorMessage);
         return null;
       }
 
       // Show success message
-      showToast(parentCommentId ? 'Reply added' : 'Comment added', 'success');
+      showToast(parentCommentId ? "Reply added" : "Comment added", "success");
 
       // Return the created comment
       return data;
     } catch (error) {
-      showToast('Network error while adding comment', 'error');
-      console.error('Network error adding comment:', error);
+      showToast("Network error while adding comment", "error");
+      console.error("Network error adding comment:", error);
       return null;
     }
   };
@@ -80,7 +84,7 @@ export function useComment({ postId, initialComments = [] }) {
   /**
    * Function to add a comment or reply at any nesting level with temp ID
    * @param {string} commentId - ID of parent comment (for replies)
-   * @param {string} commentText - Content of the comment 
+   * @param {string} commentText - Content of the comment
    * @param {Array} commentsArray - Array of comments to modify
    * @param {string} tempId - Temporary ID for optimistic update
    * @returns {Array} Updated comments array
@@ -88,8 +92,8 @@ export function useComment({ postId, initialComments = [] }) {
   const addNestedComment = (commentId, commentText, commentsArray, tempId) => {
     // Guard against non-array commentsArray
     if (!Array.isArray(commentsArray)) return [];
-    
-    return commentsArray.map(c => {
+
+    return commentsArray.map((c) => {
       if (c.id === commentId) {
         // Found the target comment, add a reply
         return {
@@ -103,22 +107,22 @@ export function useComment({ postId, initialComments = [] }) {
               time: "Just now",
               postedAt: new Date().toISOString(),
               isOptimistic: !!tempId, // Flag optimistic updates
-              replies: []
+              replies: [],
             },
-            ...c.replies
-          ]
+            ...c.replies,
+          ],
         };
       } else if (c.replies && c.replies.length > 0) {
         // Search in replies recursively
         return {
           ...c,
-          replies: addNestedComment(commentId, commentText, c.replies, tempId)
+          replies: addNestedComment(commentId, commentText, c.replies, tempId),
         };
       }
       return c;
     });
   };
-  
+
   /**
    * Function to replace an optimistic comment with the real one from the API
    * @param {Array} commentsArray - Array of comments
@@ -129,20 +133,20 @@ export function useComment({ postId, initialComments = [] }) {
   const replaceOptimisticComment = (commentsArray, tempId, realComment) => {
     // Guard against non-array commentsArray
     if (!Array.isArray(commentsArray)) return [realComment];
-    
-    return commentsArray.map(c => {
+
+    return commentsArray.map((c) => {
       if (c.id === tempId) {
         return realComment;
       } else if (c.replies && c.replies.length > 0) {
         return {
           ...c,
-          replies: replaceOptimisticComment(c.replies, tempId, realComment)
+          replies: replaceOptimisticComment(c.replies, tempId, realComment),
         };
       }
       return c;
     });
   };
-  
+
   /**
    * Function to remove an optimistic comment if the API request fails
    * @param {Array} commentsArray - Array of comments
@@ -152,18 +156,20 @@ export function useComment({ postId, initialComments = [] }) {
   const removeOptimisticComment = (commentsArray, tempId) => {
     // Guard against non-array commentsArray
     if (!Array.isArray(commentsArray)) return [];
-    
-    return commentsArray.map(c => {
-      if (c.replies && c.replies.length > 0) {
-        return {
-          ...c,
-          replies: c.replies.filter(r => r.id !== tempId)
-        };
-      }
-      return c;
-    }).filter(c => c.id !== tempId);
+
+    return commentsArray
+      .map((c) => {
+        if (c.replies && c.replies.length > 0) {
+          return {
+            ...c,
+            replies: c.replies.filter((r) => r.id !== tempId),
+          };
+        }
+        return c;
+      })
+      .filter((c) => c.id !== tempId);
   };
-  
+
   /**
    * Handle adding a comment or reply
    * @param {Event} e - Form submit event
@@ -172,11 +178,11 @@ export function useComment({ postId, initialComments = [] }) {
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!comment.trim()) return;
-    
+
     // Save the comment text and reset input
     const commentText = comment;
     setComment("");
-    
+
     // Show loading state
     const tempId = `temp-${Date.now()}`;
     const tempComment = {
@@ -188,23 +194,32 @@ export function useComment({ postId, initialComments = [] }) {
       time: "Just now",
       postedAt: new Date().toISOString(),
       isOptimistic: true, // Flag to identify optimistic updates
-      replies: []
+      replies: [],
     };
-    
+
     if (replyTo) {
       // Optimistic update for replies
-      setComments(prev => addNestedComment(replyTo.commentId, commentText, Array.isArray(prev) ? prev : [], tempId));
+      setComments((prev) =>
+        addNestedComment(
+          replyTo.commentId,
+          commentText,
+          Array.isArray(prev) ? prev : [],
+          tempId
+        )
+      );
       setReplyTo(null);
     } else {
       // Optimistic update for top-level comments
-      setComments(prev => Array.isArray(prev) ? [tempComment, ...prev] : [tempComment]);
+      setComments((prev) =>
+        Array.isArray(prev) ? [tempComment, ...prev] : [tempComment]
+      );
     }
-    
+
     try {
       // Submit comment to API
       const parentId = replyTo ? replyTo.commentId : null;
       const newComment = await addComment(commentText, parentId);
-      
+
       if (newComment) {
         // Format the returned comment to match our UI structure
         const apiComment = {
@@ -215,46 +230,50 @@ export function useComment({ postId, initialComments = [] }) {
           content: newComment.content,
           time: "Just now", // Would use formatTimeAgo(newComment.postedAt) in a real app
           postedAt: newComment.postedAt,
-          replies: []
+          replies: [],
         };
-        
+
         // Replace the temp comment with the real one
         if (replyTo) {
-          setComments(prev => 
-            Array.isArray(prev) ? replaceOptimisticComment(prev, tempId, apiComment) : [apiComment]
+          setComments((prev) =>
+            Array.isArray(prev)
+              ? replaceOptimisticComment(prev, tempId, apiComment)
+              : [apiComment]
           );
         } else {
-          setComments(prev => 
-            Array.isArray(prev) ? prev.map(c => c.id === tempId ? apiComment : c) : [apiComment]
+          setComments((prev) =>
+            Array.isArray(prev)
+              ? prev.map((c) => (c.id === tempId ? apiComment : c))
+              : [apiComment]
           );
         }
       } else {
         // Remove the optimistic comment on error
         if (replyTo) {
-          setComments(prev =>
+          setComments((prev) =>
             Array.isArray(prev) ? removeOptimisticComment(prev, tempId) : []
           );
         } else {
-          setComments(prev => 
-            Array.isArray(prev) ? prev.filter(c => c.id !== tempId) : []
+          setComments((prev) =>
+            Array.isArray(prev) ? prev.filter((c) => c.id !== tempId) : []
           );
         }
       }
     } catch (error) {
-      console.error('Error adding comment:', error);
-      
+      console.error("Error adding comment:", error);
+
       // Remove the optimistic comment on error
       if (replyTo) {
-        setComments(prev =>
+        setComments((prev) =>
           Array.isArray(prev) ? removeOptimisticComment(prev, tempId) : []
         );
       } else {
-        setComments(prev => 
-          Array.isArray(prev) ? prev.filter(c => c.id !== tempId) : []
+        setComments((prev) =>
+          Array.isArray(prev) ? prev.filter((c) => c.id !== tempId) : []
         );
       }
-      
-      showToast('Error posting comment', 'error');
+
+      showToast("Error posting comment", "error");
     }
   };
 
@@ -267,7 +286,7 @@ export function useComment({ postId, initialComments = [] }) {
     setReplyTo({ commentId, userName });
     setComment(`@${userName} `);
   };
-  
+
   /**
    * Cancel a reply and clear form
    */
@@ -283,64 +302,69 @@ export function useComment({ postId, initialComments = [] }) {
    */
   const formatRelativeTime = (dateString) => {
     if (!dateString) return "Recently";
-    
+
     try {
       const date = new Date(dateString);
       const now = new Date();
       const diffSeconds = Math.floor((now - date) / 1000);
-      
+
       if (diffSeconds < 60) {
         return "Just now";
       }
-      
+
       const diffMinutes = Math.floor(diffSeconds / 60);
       if (diffMinutes < 60) {
         return `${diffMinutes}m ago`;
       }
-      
+
       const diffHours = Math.floor(diffMinutes / 60);
       if (diffHours < 24) {
         return `${diffHours}h ago`;
       }
-      
+
       const diffDays = Math.floor(diffHours / 24);
       if (diffDays < 7) {
         return `${diffDays}d ago`;
       }
-      
+
       // For older dates, show the date
       return date.toLocaleDateString();
     } catch (e) {
       console.error("Error formatting date:", e);
       return "Unknown time";
     }
-  };  /**
+  };
+  /**
    * Load comments for a post
    */
   const loadComments = async () => {
     setIsLoadingComments(true);
-    
+
     try {
       // Fetch comments from our API endpoint with nested structure
-      const response = await fetch(`/api/proxy/post-comment/${postId}?nested=true`);
+      const response = await fetch(
+        `/api/proxy/post-comment/${postId}?nested=true`
+      );
       if (response.ok) {
         const data = await response.json();
-        console.log('Comments loaded:', data);   
+        // console.log("Comments loaded:", data);
         // Process and format comments from API
-        const formattedComments = data.map(comment => formatCommentForDisplay(comment));
-        
+        const formattedComments = data.map((comment) =>
+          formatCommentForDisplay(comment)
+        );
+
         setComments(formattedComments);
       } else {
-        showToast('Failed to load comments', 'error');
+        showToast("Failed to load comments", "error");
       }
     } catch (error) {
-      console.error('Error loading comments:', error);
-      showToast('Failed to load comments', 'error');
+      console.error("Error loading comments:", error);
+      showToast("Failed to load comments", "error");
     } finally {
       setIsLoadingComments(false);
     }
   };
-  
+
   /**
    * Helper function to recursively format comments and their replies
    * @param {Object} comment - Comment from API
@@ -350,13 +374,17 @@ export function useComment({ postId, initialComments = [] }) {
     return {
       id: comment.commentId,
       userId: comment.userId,
-      user: comment.username || "User", 
+      user: comment.username || "User",
       content: comment.content,
+      image: comment.image,
       postedAt: comment.postedAt,
       time: formatRelativeTime(comment.postedAt),
       // Process child comments recursively if they exist
-      replies: comment.childComments ? 
-        comment.childComments.map(childComment => formatCommentForDisplay(childComment)) : []
+      replies: comment.childComments
+        ? comment.childComments.map((childComment) =>
+            formatCommentForDisplay(childComment)
+          )
+        : [],
     };
   };
 
@@ -370,7 +398,7 @@ export function useComment({ postId, initialComments = [] }) {
     if (newVisibility && comments.length === 0 && !isLoadingComments) {
       loadComments();
     }
-    
+
     return newVisibility;
   };
 
@@ -381,13 +409,13 @@ export function useComment({ postId, initialComments = [] }) {
     setComment,
     replyTo,
     isLoadingComments,
-    
+
     // Functions
     handleAddComment,
     handleReply,
     cancelReply,
     toggleComments,
-    formatRelativeTime
+    formatRelativeTime,
   };
 }
 
