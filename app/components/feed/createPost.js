@@ -1,256 +1,311 @@
 "use client";
 import React, { useState, useRef } from "react";
 import Image from "next/image";
-import { uploadToAzureStorage, getMediaTypeFromMimeType } from "../../utils/azureStorage";
+import {
+  uploadToAzureStorage,
+  getMediaTypeFromMimeType,
+} from "../../utils/azureStorage";
+import useUserAvatar from "@/app/hooks/useUserAvatar";
+import UserAvatar from "../UserAvatar";
+import {
+  FaceSmileIcon,
+  PhotoIcon,
+  VideoCameraIcon,
+} from "@heroicons/react/24/outline";
+import EmojiComponent from "../ui/emoji";
+import EmojiPicker from "emoji-picker-react";
 
 export default function CreatePost({ onPostCreated, refreshPosts }) {
-    const [content, setContent] = useState("");
-    const [showMediaInput, setShowMediaInput] = useState(false);
-    const [mediaPreviewUrl, setMediaPreviewUrl] = useState("");
-    const [selectedFileName, setSelectedFileName] = useState("");
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState(null);
-    const fileInputRef = useRef(null);
-    const mediaFileRef = useRef(null);
-    
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        if (!content.trim()) {
-            return;
-        }
-        
-        setSubmitting(true);
-        setError(null);
-        
+  const [content, setContent] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showMediaInput, setShowMediaInput] = useState(false);
+  const [mediaPreviewUrl, setMediaPreviewUrl] = useState("");
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+  const mediaFileRef = useRef(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!content.trim()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      // Create the request body
+      const requestBody = {
+        content: content,
+        media: [],
+      };
+
+      // Upload media file if one was selected
+      if (mediaFileRef.current) {
         try {
-            // Create the request body
-            const requestBody = {
-                content: content,
-                media: []
-            };
-            
-            // Upload media file if one was selected
-            if (mediaFileRef.current) {
-                try {
-                    // Upload the file to Azure Storage via our API route
-                    const uploadResult = await uploadToAzureStorage(mediaFileRef.current);
-                    
-                    // Add the media information to the request body
-                    requestBody.media.push({
-                        mediaUrl: uploadResult.mediaUrl,
-                        mediaType: uploadResult.mediaType
-                    });
-                    
-                } catch (uploadError) {
-                    throw new Error(`Không thể tải lên file: ${uploadError.message}`);
-                }
-            }
-            
-            // Send the post to the API
-            const response = await fetch("/api/proxy/user-posts", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            })
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Lỗi: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // Call the onPostCreated callback with the new post data
-            onPostCreated(data);
-            
-            // Refresh the posts list if the function is available
-            if (typeof refreshPosts === 'function') {
-                refreshPosts();
-            }
-            
-            // Reset the form
-            setContent("");
-            setMediaPreviewUrl("");
-            setSelectedFileName("");
-            setShowMediaInput(false);
-            mediaFileRef.current = null;
-            
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-            }
-        } catch (err) {
-            console.error("Lỗi khi tạo bài đăng:", err);
-            setError(err.message || "Không thể tạo bài đăng");
-        } finally {
-            setSubmitting(false);
+          // Upload the file to Azure Storage via our API route
+          const uploadResult = await uploadToAzureStorage(mediaFileRef.current);
+
+          // Add the media information to the request body
+          requestBody.media.push({
+            mediaUrl: uploadResult.mediaUrl,
+            mediaType: uploadResult.mediaType,
+          });
+        } catch (uploadError) {
+          throw new Error(`Không thể tải lên file: ${uploadError.message}`);
         }
-    };
-    
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type
-            const isValidType = 
-                file.type.startsWith('image/') || 
-                file.type === 'application/pdf' ||
-                file.type === 'application/msword' ||
-                file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-                
-            if (!isValidType) {
-                setError('Chỉ chấp nhận hình ảnh, PDF và tài liệu Word.');
-                return;
-            }
-            
-            setSelectedFileName(file.name);
-            // Store the file reference for later upload
-            mediaFileRef.current = file;
-            
-            // Only create preview URL for images
-            if (file.type.startsWith('image/')) {
-                const fileURL = URL.createObjectURL(file);
-                setMediaPreviewUrl(fileURL);
-            } else {
-                // For non-image files, clear the image preview
-                setMediaPreviewUrl('');
-            }
-        }
-    };
-    
-    const triggerFileInput = () => {
-        fileInputRef.current.click();
-    };
-    
-    const getFileIcon = (fileName) => {
-        if (!fileName) return null;
-        
-        const extension = fileName.split('.').pop().toLowerCase();
-        
-        switch (extension) {
-            case 'pdf':
-                return '📄';
-            case 'doc':
-            case 'docx':
-                return '📝';
-            default:
-                return '📎';
-        }
-    };
-    
-    return (
-        <div className="bg-white rounded-lg shadow p-4">
-            <div className="flex items-center mb-3">
-                <form onSubmit={handleSubmit} className="flex-1">
-                    <input
-                        type="text"
-                        placeholder="Bạn đang nghĩ gì?"
-                        className="w-full rounded-full bg-gray-100 px-4 py-2"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        disabled={submitting}
-                    />
-                </form>
-            </div>
-            
-            {error && (
-                <div className="mb-3 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-                    {error}
-                </div>
-            )}
-            
-            {showMediaInput && (
-                <div className="mb-3">
-                    <div className="flex flex-col gap-2">
-                        {/* Hidden actual file input */}
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            onChange={handleFileChange}
-                            className="hidden"
-                            disabled={submitting}
-                        />
-                        
-                        {/* Custom styled button */}
-                        <button 
-                            type="button"
-                            onClick={triggerFileInput}
-                            className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
-                            Chọn File
-                        </button>
-                        
-                        {/* Display selected file name with icon */}
-                        {selectedFileName && (
-                            <div className="flex items-center mt-2">
-                                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
-                                    Đã chọn:
-                                </span>
-                                <span className="text-sm text-gray-600 flex items-center gap-1">
-                                    <span>{getFileIcon(selectedFileName)}</span>
-                                    <span className="truncate max-w-[200px]">{selectedFileName}</span>
-                                </span>
-                                <button 
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectedFileName("");
-                                        setMediaPreviewUrl("");
-                                        fileInputRef.current.value = "";
-                                        mediaFileRef.current = null;
-                                    }}
-                                    className="ml-2 text-sm text-red-500 hover:text-red-700"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        )}
-                        
-                        {/* Preview image if available */}
-                        {mediaPreviewUrl && (
-                            <div className="mt-2 relative h-40">
-                                <Image 
-                                    src={mediaPreviewUrl} 
-                                    alt="Xem trước" 
-                                    fill
-                                    className="rounded-md object-contain"
-                                    unoptimized={mediaPreviewUrl.startsWith('blob:')}
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-            
-            <div className="flex border-t pt-3">
-                <button 
-                    type="button"
-                    onClick={() => setShowMediaInput(!showMediaInput)}
-                    disabled={submitting}
-                    className="flex-1 flex items-center justify-center py-1 hover:bg-gray-100 rounded-lg disabled:opacity-50"
-                >
-                    <span className="mr-2">📎</span> Đính kèm file
-                </button>
-                <button 
-                    type="button"
-                    onClick={handleSubmit} 
-                    disabled={submitting || !content.trim()}
-                    className="ml-2 bg-blue-500 text-white rounded-lg px-4 hover:bg-blue-600 disabled:opacity-50 disabled:bg-blue-300"
-                >
-                    {submitting ? (
-                        <div className="flex items-center">
-                            <div className="w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></div>
-                            Đang đăng...
-                        </div>
-                    ) : (
-                        "Đăng"
-                    )}
-                </button>
-            </div>
+      }
+
+      // Send the post to the API
+      const response = await fetch("/api/proxy/user-posts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Lỗi: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Call the onPostCreated callback with the new post data
+      onPostCreated(data);
+
+      // Refresh the posts list if the function is available
+      if (typeof refreshPosts === "function") {
+        refreshPosts();
+      }
+
+      // Reset the form
+      setContent("");
+      setMediaPreviewUrl("");
+      setSelectedFileName("");
+      setShowMediaInput(false);
+      mediaFileRef.current = null;
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (err) {
+      console.error("Lỗi khi tạo bài đăng:", err);
+      setError(err.message || "Không thể tạo bài đăng");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleEmojiClick = (emojiObject) => {
+    setContent((prevContent) => prevContent + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const isValidType =
+        file.type.startsWith("image/") ||
+        file.type === "application/pdf" ||
+        file.type === "application/msword" ||
+        file.type ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+      if (!isValidType) {
+        setError("Chỉ chấp nhận hình ảnh, PDF và tài liệu Word.");
+        return;
+      }
+
+      setSelectedFileName(file.name);
+      // Store the file reference for later upload
+      mediaFileRef.current = file;
+
+      // Only create preview URL for images
+      if (file.type.startsWith("image/")) {
+        const fileURL = URL.createObjectURL(file);
+        setMediaPreviewUrl(fileURL);
+      } else {
+        // For non-image files, clear the image preview
+        setMediaPreviewUrl("");
+      }
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
+  const getFileIcon = (fileName) => {
+    if (!fileName) return null;
+
+    const extension = fileName.split(".").pop().toLowerCase();
+
+    switch (extension) {
+      case "pdf":
+        return "📄";
+      case "doc":
+      case "docx":
+        return "📝";
+      default:
+        return "📎";
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow p-4">
+      <div className="flex items-center mb-3">
+        <UserAvatar />
+        <form onSubmit={handleSubmit} className="flex-1">
+          <input
+            type="text"
+            placeholder="Bạn đang nghĩ gì?"
+            className="w-full rounded-full bg-gray-100 px-4 py-2"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            disabled={submitting}
+          />
+        </form>
+      </div>
+
+      {error && (
+        <div className="mb-3 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
         </div>
-    );
+      )}
+
+      {showMediaInput && (
+        <div className="mb-3">
+          <div className="flex flex-col gap-2">
+            {/* Hidden actual file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={handleFileChange}
+              className="hidden"
+              disabled={submitting}
+            />
+
+            {/* Custom styled button */}
+            <button
+              type="button"
+              onClick={triggerFileInput}
+              className="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2 text-gray-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                />
+              </svg>
+              Chọn File
+            </button>
+
+            {/* Display selected file name with icon */}
+            {selectedFileName && (
+              <div className="flex items-center mt-2">
+                <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+                  Đã chọn:
+                </span>
+                <span className="text-sm text-gray-600 flex items-center gap-1">
+                  <span>{getFileIcon(selectedFileName)}</span>
+                  <span className="truncate max-w-[200px]">
+                    {selectedFileName}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedFileName("");
+                    setMediaPreviewUrl("");
+                    fileInputRef.current.value = "";
+                    mediaFileRef.current = null;
+                  }}
+                  className="ml-2 text-sm text-red-500 hover:text-red-700"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Preview image if available */}
+            {mediaPreviewUrl && (
+              <div className="mt-2 relative h-40">
+                <Image
+                  src={mediaPreviewUrl}
+                  alt="Xem trước"
+                  fill
+                  className="rounded-md object-contain"
+                  unoptimized={mediaPreviewUrl.startsWith("blob:")}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="flex border-t pt-3 justify-between relative">
+        <div className="flex grap-2 justify-between w-[80%]">
+          <button
+            type="button"
+            onClick={() => setShowMediaInput(!showMediaInput)}
+            disabled={submitting}
+            className="flex-1 flex items-center justify-center py-2 hover:bg-blue-200 hover:text-gray-700 rounded-lg disabled:opacity-50 text-blue-500 font-medium"
+          >
+            <PhotoIcon className="w-5 h-5 mr-2" /> Ảnh
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowMediaInput(!showMediaInput)}
+            disabled={submitting}
+            className="flex-1 flex items-center justify-center py-2 hover:bg-blue-200 hover:text-gray-700 rounded-lg disabled:opacity-50 text-blue-500 font-medium"
+          >
+            <VideoCameraIcon className="w-5 h-5 mr-2" /> Video
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            disabled={submitting}
+            className="flex-1 flex items-center justify-center py-2 hover:bg-blue-200 hover:text-gray-700 rounded-lg disabled:opacity-50 text-blue-500 font-medium"
+          >
+            <FaceSmileIcon className="w-5 h-5 mr-2" /> Cảm xúc
+          </button>
+          {showEmojiPicker && (
+            <div className="absolute z-50 right-0 top-20">
+              <EmojiPicker onEmojiClick={handleEmojiClick} />
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting || !content.trim()}
+          className="ml-2 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg px-4 hover:bg-blue-600 disabled:opacity-50 disabled:bg-blue-300"
+        >
+          {submitting ? (
+            <div className="flex items-center">
+              <div className="w-4 h-4 border-t-2 border-b-2 border-white rounded-full animate-spin mr-2"></div>
+              Đang đăng...
+            </div>
+          ) : (
+            "Đăng bài"
+          )}
+        </button>
+      </div>
+    </div>
+  );
 }

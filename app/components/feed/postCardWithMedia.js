@@ -330,7 +330,7 @@ export default function PostCard({ post, onLike }) {
               isVoted ? "text-white bg-blue-500 rounded-full p-1" : ""
             }`}
           >
-            <SolidThumbUp className="h-3 w-3" />
+            {isVoted && <SolidThumbUp className="h-3 w-3" />}
           </span>
           {voteCount} {voteCount === 1 ? "lượt thích" : "lượt thích"}
         </div>

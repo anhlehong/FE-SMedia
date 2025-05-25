@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import FeedSection from "../components/feed/feedSection";
 import ProfileHeader from "../components/profile/profileHeader";
@@ -11,14 +11,18 @@ import { getUserInfo } from "../utils/auth";
 export default function ProfilePage() {
   // Use the custom hooks to fetch real data
   const { userId } = getUserInfo();
-  const { 
-    profileData, 
-    loading: profileLoading, 
+  const {
+    profileData,
+    loading: profileLoading,
     error: profileError,
-    refreshProfile 
+    refreshProfile,
   } = useUserProfile(userId);
-  const { posts: userPosts, loading: postsLoading } = useUserPosts(profileData?.userId);
-  console.log("user posts", userPosts);  
+  const { posts: userPosts, loading: postsLoading } = useUserPosts(
+    profileData?.userId
+  );
+  useEffect(() => {
+    console.log("ProfileData changed:", profileData);
+  }, [profileData]);
   const [activeTab, setActiveTab] = useState("posts");
   const [toast, setToast] = useState(null);
   // Show loading state while data is being fetched
@@ -29,7 +33,7 @@ export default function ProfilePage() {
       </div>
     );
   }
-  
+
   // Show error if any
   if (profileError) {
     return (
@@ -50,38 +54,29 @@ export default function ProfilePage() {
   const handleProfileUpdate = () => {
     refreshProfile();
     setToast({
-      message: 'Profile updated successfully!',
-      type: 'success'
+      message: "Profile updated successfully!",
+      type: "success",
     });
   };
-  
+
   return (
-    <>    <ProfileHeader 
-        profileData={profileData} 
-        isOwnProfile={true} 
-        onProfileUpdate={handleProfileUpdate} 
+    <>
+      {" "}
+      <ProfileHeader
+        profileData={profileData}
+        isOwnProfile={true}
+        onProfileUpdate={handleProfileUpdate}
       />
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      
       {activeTab === "posts" && (
         <FeedSection posts={userPosts} loading={postsLoading} />
       )}
-      
-      {activeTab === "about" && (
-        <AboutSection profileData={profileData} />
-      )}
-      
-      {activeTab === "friends" && (
-        <FriendsSection />
-      )}
-      
-      {activeTab === "photos" && (
-        <PhotosSection />
-      )}
-      
+      {activeTab === "about" && <AboutSection profileData={profileData} />}
+      {activeTab === "friends" && <FriendsSection />}
+      {activeTab === "photos" && <PhotosSection />}
       {/* Show toast notification if it exists */}
       {toast && (
-        <Toast 
+        <Toast
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
@@ -122,9 +117,9 @@ function FriendsSection() {
     { id: 3, name: "Sarah Williams", avatar: "/person.png", mutualFriends: 5 },
     { id: 4, name: "Alex Brown", avatar: "/person.png", mutualFriends: 3 },
     { id: 5, name: "Emma Davis", avatar: "/person.png", mutualFriends: 15 },
-    { id: 6, name: "Ryan Wilson", avatar: "/person.png", mutualFriends: 2 }
+    { id: 6, name: "Ryan Wilson", avatar: "/person.png", mutualFriends: 2 },
   ];
-  
+
   return (
     <div className="bg-white rounded-lg shadow p-6 mt-4">
       <div className="flex justify-between items-center mb-4">
@@ -132,18 +127,23 @@ function FriendsSection() {
         <span className="text-gray-500">{friends.length} friends</span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {friends.map(friend => (
-          <div key={friend.id} className="flex items-center p-3 border rounded-lg hover:bg-gray-50">
-            <Image 
-              src={friend.avatar} 
-              alt={friend.name} 
-              width={40} 
-              height={40} 
-              className="rounded-full mr-3" 
+        {friends.map((friend) => (
+          <div
+            key={friend.id}
+            className="flex items-center p-3 border rounded-lg hover:bg-gray-50"
+          >
+            <Image
+              src={friend.avatar}
+              alt={friend.name}
+              width={40}
+              height={40}
+              className="rounded-full mr-3"
             />
             <div>
               <h3 className="font-medium">{friend.name}</h3>
-              <p className="text-sm text-gray-500">{friend.mutualFriends} mutual friends</p>
+              <p className="text-sm text-gray-500">
+                {friend.mutualFriends} mutual friends
+              </p>
             </div>
           </div>
         ))}
@@ -163,21 +163,24 @@ function PhotosSection() {
     "https://source.unsplash.com/random/300x300/?travel",
     "https://source.unsplash.com/random/300x300/?architecture",
     "https://source.unsplash.com/random/300x300/?animals",
-    "https://source.unsplash.com/random/300x300/?sports"
+    "https://source.unsplash.com/random/300x300/?sports",
   ];
-  
+
   return (
     <div className="bg-white rounded-lg shadow p-6 mt-4">
       <h2 className="text-xl font-semibold mb-4">Photos</h2>
       <div className="grid grid-cols-3 gap-2">
         {photos.map((photo, index) => (
-          <div key={index} className="aspect-square overflow-hidden rounded-lg relative">
-            <Image 
-              src={photo} 
-              alt={`Photo ${index + 1}`} 
+          <div
+            key={index}
+            className="aspect-square overflow-hidden rounded-lg relative"
+          >
+            <Image
+              src={photo}
+              alt={`Photo ${index + 1}`}
               fill
               sizes="(max-width: 768px) 33vw, 20vw"
-              className="object-cover" 
+              className="object-cover"
             />
           </div>
         ))}

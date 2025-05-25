@@ -2,11 +2,15 @@
 import Image from "next/image";
 import { formatDistance } from "date-fns";
 import { getUserInfo } from "@/app/utils/auth";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import EditGroupModal from "./EditGroupModal";
+import { useState } from "react";
 
 export default function GroupHeader({
   groupDetails,
   isMember,
   isJoining,
+  fetchGroupDetails,
   handleJoinPublicGroup,
   handleJoinPrivateGroup,
   activeTab,
@@ -15,6 +19,8 @@ export default function GroupHeader({
   const userInfo = getUserInfo();
   const userId = userInfo ? userInfo.userId : null;
   const isAdmin = groupDetails.createdBy == userId;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Format the creation date for display
   const formatCreationDate = (dateString) => {
     try {
@@ -41,7 +47,11 @@ export default function GroupHeader({
             console.log("Image load error, replacing with fallback");
           }}
         />
-        <button className="absolute bottom-2 right-6 px-4 py-2 bg-gray-300 shadow-md rounded-md font-medium">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="absolute flex bottom-3 right-6 px-4 py-2 bg-gray-200 hover:bg-gray-400 shadow-md rounded-md font-medium"
+        >
+          <PencilSquareIcon className="w-5 h-5 mr-2" />
           Chỉnh sửa
         </button>
       </div>
@@ -162,6 +172,14 @@ export default function GroupHeader({
           )}
         </div>
       </div>
+      {isModalOpen && (
+        <EditGroupModal
+          groupData={groupDetails}
+          fetchGroupDetails={fetchGroupDetails}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
