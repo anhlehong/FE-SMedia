@@ -8,11 +8,11 @@ export default function ProfileTabs({ activeTab, setActiveTab }) {
     // { id: "friends", label: "Friends" },
     // { id: "photos", label: "Photos" }
   ];
-  
+
   return (
-    <div className="bg-white rounded-lg shadow mt-4 px-4">
+    <div className="bg-white rounded-lg shadow mt-4 px-4 ml-8 mr-16">
       <div className="flex">
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
