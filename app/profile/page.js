@@ -20,9 +20,7 @@ export default function ProfilePage() {
   const { posts: userPosts, loading: postsLoading } = useUserPosts(
     profileData?.userId
   );
-  useEffect(() => {
-    console.log("ProfileData changed:", profileData);
-  }, [profileData]);
+
   const [activeTab, setActiveTab] = useState("posts");
   const [toast, setToast] = useState(null);
   // Show loading state while data is being fetched

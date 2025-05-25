@@ -76,8 +76,6 @@ export default function useUserPosts(userId, pageSize = 10, userIds = []) {
 
         const postsData = fetchedPosts.flat();
 
-        console.log("post", postsData);
-
         if (
           !Array.isArray(postsData) ||
           postsData.length === 0 ||

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 import { usePathname } from "next/navigation";
 import NavBar from "./public/navbar";
@@ -26,13 +26,15 @@ const geistMono = localFont({
 export default function RootLayout({ children }) {
   // Get the current pathname to conditionally render components
   const pathname = usePathname();
-  
+
   // Check if the current page is signin or signup
-  const isAuthPage = pathname === '/signin' || pathname === '/signup';
+  const isAuthPage = pathname === "/signin" || pathname === "/signup";
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <div className="bg-gray-100 min-h-screen">
           {/* Fixed navbar - don't show on signin and signup pages */}
           {!isAuthPage && (
@@ -40,19 +42,33 @@ export default function RootLayout({ children }) {
               <NavBar />
             </div>
           )}
-          
+
           {/* Main layout */}
-          <div className={`${!isAuthPage ? "pt-16" : ""} flex flex-col md:flex-row`}>
+          <div
+            className={`${
+              !isAuthPage ? "pt-16" : ""
+            } flex flex-col md:flex-row`}
+          >
             {/* Left sidebar - don't show on signin and signup pages */}
             {!isAuthPage && <LeftSidebar />}
-            
+
             {/* Main content area - will be filled by page components */}
-            <div className={`flex-1 flex justify-center ${isAuthPage ? "w-full" : ""}`}>
-              <main className={`${isAuthPage ? "w-full" : "w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl"} px-4 py-6`}>
+            <div
+              className={`flex-1 flex justify-center ${
+                isAuthPage ? "w-full" : ""
+              }`}
+            >
+              <main
+                className={`${
+                  isAuthPage
+                    ? "w-full"
+                    : "w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl"
+                }`}
+              >
                 {children}
               </main>
             </div>
-            
+
             {/* Right sidebar (MessageBar) - don't show on signin and signup pages */}
             {!isAuthPage && <MessageBar />}
           </div>
