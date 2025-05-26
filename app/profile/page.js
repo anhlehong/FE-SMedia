@@ -8,9 +8,23 @@ import Toast from "../components/ui/toast";
 import useUserProfile from "../hooks/useUserProfile";
 import useUserPosts from "../hooks/useUserPosts";
 import { getUserInfo } from "../utils/auth";
+import { useRouter } from "next/navigation";
+
 export default function ProfilePage() {
   // Use the custom hooks to fetch real data
-  const { userId } = getUserInfo();
+  // const { userId } = getUserInfo();
+  
+  const router = useRouter();
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    const userInfo = getUserInfo();
+    if (!userInfo) {
+      router.push("/login");
+    } else {
+      setUserId(userInfo.userId);
+    }
+  }, [router]);
+
   const {
     profileData,
     loading: profileLoading,

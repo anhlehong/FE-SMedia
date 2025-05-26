@@ -10,6 +10,8 @@ const TOKEN_NAME = 'authToken';
  * or other purposes where the token is needed but stored in HTTP-only cookies
  */
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         const cookieStore = cookies();
