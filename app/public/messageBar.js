@@ -4,7 +4,7 @@ import Entity from "../components/asideChat/entity";
 import { useFollowing } from "../hooks/useFollowing";
 import { getUserInfo } from "../utils/auth";
 import { useSharedFollowing } from "../context/followContext";
-import { useWebSocketContext } from "../contexts/websocket-context"
+import { useWebSocketContext } from "../contexts/websocket-context";
 import { ads } from "../data/data";
 
 export default function MessageBar() {
@@ -12,8 +12,8 @@ export default function MessageBar() {
   const [selectedEntity, setSelectedIndexEntity] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [adsState, setAdsState] = useState(ads);
-  
-  const { connected, userInfo } = useWebSocketContext()
+
+  const { connected, userInfo } = useWebSocketContext();
 
   // Use the hook to fetch following users
   const { followingUsers, isLoading, error, hasMore, loadMore } =
@@ -33,24 +33,24 @@ export default function MessageBar() {
   };
 
   const handleClickEntity = (id) => {
-    setSelectedIndexEntity(id)
-  }
+    setSelectedIndexEntity(id);
+  };
 
   useEffect(() => {
-    console.log("Selected entity index:", selectedEntity)
-  }, [selectedEntity])
+    console.log("Selected entity index:", selectedEntity);
+  }, [selectedEntity]);
 
   // Close sidebar on medium+ screens
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
+    };
 
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <>
@@ -59,77 +59,32 @@ export default function MessageBar() {
         onClick={() => setIsOpen(!isOpen)}
         className="fixed top-20 right-4 z-50 md:hidden bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
       >
-        {isOpen ? <span className="text-xl">✕</span> : <span className="text-xl">💬</span>}
+        {isOpen ? (
+          <span className="text-xl">✕</span>
+        ) : (
+          <span className="text-xl">💬</span>
+        )}
       </button>
 
       {/* Semi-transparent overlay when sidebar is open on mobile */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setIsOpen(false)}></div>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        ></div>
       )}
 
       <aside
         id="default-sidebar"
-
-//         className={`fixed top-16 right-0 w-72 h-full pb-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 transition-all duration-300 ease-in-out ${isOpen ? "translate-x-0" : "translate-x-full"
-//           } md:translate-x-0 md:hidden lg:block border-l border-gray-100`}
-
         className={`fixed top-16 right-0 w-72 h-full pb-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 transition-all duration-300 ease-in-out ${
-         isOpen ? "translate-x-0" : "translate-x-full"
+          isOpen ? "translate-x-0" : "translate-x-full"
         } md:translate-x-0 md:hidden lg:block border-l border-gray-100 overflow-auto`}
+        // className={`fixed top-16 right-0 w-72 h-full pb-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 transition-all duration-300 ease-in-out ${
+        //  isOpen ? "translate-x-0" : "translate-x-full"
+        // } md:translate-x-0 md:hidden lg:block border-l border-gray-100 overflow-auto`}
 
         aria-label="Sidebar"
       >
-        <div className="mt-6 mx-4">
-          <h3 className="font-semibold text-gray-500">Được tài trợ</h3>
-
-          {activeAds.map((ad, index) => (
-            <div
-              key={index}
-              className="relative p-3 bg-gray-100 rounded-md mt-2 hover:bg-gray-200 transition flex gap-2 items-center"
-            >
-              <a
-                href={ad.adUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex gap-2 items-center"
-              >
-                <img
-                  src={ad.imageSrc}
-                  alt={ad.title}
-                  className="rounded-md w-24 h-24"
-                />
-                <p className="text-sm font-medium">{ad.title}</p>
-              </a>
-
-              {/* Nút chuyển đổi trạng thái */}
-              <button
-                onClick={() => toggleAdStatus(ad.title)}
-                className="absolute top-2 right-2 text-gray-600 hover:text-blue-500"
-              >
-                🔄
-              </button>
-            </div>
-          ))}
-
-          {/* Hiển thị quảng cáo đã ẩn */}
-          {adsState
-            .filter((ad) => !ad.isActive)
-            .map((ad, index) => (
-              <div
-                key={index}
-                className="p-3 bg-gray-50 border border-gray-300 rounded-md mt-2 flex items-center justify-between"
-              >
-                <p className="text-sm text-gray-500">{ad.title} đã ẩn</p>
-                <button
-                  onClick={() => toggleAdStatus(ad.title)}
-                  className="text-sm text-blue-500 hover:text-blue-600"
-                >
-                  Hoàn tác
-                </button>
-              </div>
-            ))}
-        </div>
-
         <div className="h-full px-4 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300 scrollbar-track-transparent">
           <div className="sticky top-0 bg-white/95 backdrop-blur-sm -mx-4 px-4">
             <div className="flex justify-between items-center py-2">
@@ -137,7 +92,9 @@ export default function MessageBar() {
                 <h3 className="font-semibold text-gray-500">Người liên hệ</h3>
                 {/* WebSocket connection status */}
                 <div
-                  className={`w-2 h-2 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`}
+                  className={`w-2 h-2 rounded-full ${
+                    connected ? "bg-green-500" : "bg-red-500"
+                  }`}
                   title={connected ? "Đã kết nối" : "Mất kết nối"}
                 />
               </div>
@@ -159,7 +116,7 @@ export default function MessageBar() {
               </div>
             ) : (
               followingUsers.map((followData) => {
-                const user = followData.followed
+                const user = followData.followed;
                 return (
                   <Entity
                     key={user.userId}
@@ -170,7 +127,7 @@ export default function MessageBar() {
                     selectedIndexEntity={selectedEntity}
                     setSelectedIndexEntity={setSelectedIndexEntity}
                   />
-                )
+                );
               })
             )}
 
@@ -181,7 +138,10 @@ export default function MessageBar() {
             )}
 
             {hasMore && !isLoading && followingUsers.length > 0 && (
-              <button onClick={loadMore} className="w-full text-center text-sm text-blue-500 hover:text-blue-600 py-2">
+              <button
+                onClick={loadMore}
+                className="w-full text-center text-sm text-blue-500 hover:text-blue-600 py-2"
+              >
                 Tải thêm
               </button>
             )}
@@ -189,5 +149,5 @@ export default function MessageBar() {
         </div>
       </aside>
     </>
-  )
+  );
 }

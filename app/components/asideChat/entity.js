@@ -1,11 +1,18 @@
-"use client"
-import ChatBox from "./chatBox"
+"use client";
+import ChatBox from "./chatBox";
 
-export default function Entity({ imageSrc, name, id, selectedIndexEntity, notificationCount, setSelectedIndexEntity }) {
+export default function Entity({
+  imageSrc,
+  name,
+  id,
+  selectedIndexEntity,
+  notificationCount,
+  setSelectedIndexEntity,
+}) {
   const handleClick = (e) => {
-    e.preventDefault()
-    setSelectedIndexEntity(id)
-  }
+    e.preventDefault();
+    setSelectedIndexEntity(id);
+  };
 
   return (
     <li className="list-none">
@@ -26,9 +33,17 @@ export default function Entity({ imageSrc, name, id, selectedIndexEntity, notifi
             </span>
           )}
         </div>
-        <span className="flex-1 ms-3 whitespace-nowrap font-medium group-hover:text-blue-600">{name}</span>
+        <span className="flex-1 ms-3 whitespace-nowrap font-medium group-hover:text-blue-600">
+          {name}
+        </span>
       </a>
-      {selectedIndexEntity === id && <ChatBox name={name} targetId={id} onClose={() => setSelectedIndexEntity(null)} />}
+      {selectedIndexEntity === id && (
+        <ChatBox
+          name={name}
+          targetId={id}
+          onClose={() => setSelectedIndexEntity(null)}
+        />
+      )}
     </li>
-  )
+  );
 }
