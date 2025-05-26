@@ -79,60 +79,7 @@ export default function MessageBar() {
         } md:translate-x-0 md:hidden lg:block border-l border-gray-100`}
         aria-label="Sidebar"
       >
-        <div className="mt-6 mx-4">
-          <h3 className="font-semibold text-gray-500">Được tài trợ</h3>
-
-          {activeAds.map((ad, index) =>
-            ad.isActive ? (
-              <div
-                key={index}
-                className="relative p-3 bg-gray-100 rounded-md mt-2 hover:bg-gray-200 transition flex gap-2 items-center"
-              >
-                <a
-                  href={ad.adUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex gap-2 items-center"
-                >
-                  <img
-                    src={ad.imageSrc}
-                    alt={ad.title}
-                    className="rounded-md w-24 h-24"
-                  />
-                  <p className="text-sm font-medium">{ad.title}</p>
-                </a>
-
-                {/* Nút chuyển đổi trạng thái */}
-                <button
-                  onClick={() => toggleAdStatus(ad.title)}
-                  className="absolute top-2 right-2 text-gray-600 hover:text-blue-500"
-                >
-                  <XMarkIcon className="w-6 h-6" />
-                </button>
-              </div>
-            ) : (
-              <div
-                key={index}
-                className="p-3 bg-gray-50 border border-gray-300 rounded-md mt-2 "
-              >
-                <div className="flex justify-between">
-                  <p className="text-md text-gray-800 font-medium">
-                    Đã ẩn quảng cáo
-                  </p>
-                  <button
-                    onClick={() => toggleAdStatus(ad.title)}
-                    className="text-sm text-blue-500 hover:text-blue-600"
-                  >
-                    Hoàn tác
-                  </button>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Bạn sẽ không nhìn thấy quảng cáo này và quảng cáo tương tự.
-                </p>
-              </div>
-            )
-          )}
-        </div>
+        
         <div className="h-full px-4 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300 scrollbar-track-transparent overflow-auto">
           <div className="sticky top-0 bg-white/95 backdrop-blur-sm -mx-4 px-4">
             <div className="flex justify-between items-center py-2">
