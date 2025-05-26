@@ -30,14 +30,6 @@ export const ads = [
     isActive: true,
   },
   {
-    adUrl:
-      "https://www.google.com/url?sa=i&url=https%3A%2F%2Fteddy.vn%2Fgia-dinh-gau-bong-butter-bear-44197&psig=AOvVaw3nBKmLRr9wwqMiAkgKiMB8&ust=1748320155538000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJiZo6KmwI0DFQAAAAAdAAAAABAE",
-    imageSrc:
-      "https://teddy.vn/wp-content/uploads/2024/08/gia-dinh-butter-bear-3.jpg",
-    title: "Gia đình gấu bông",
-    isActive: true,
-  },
-  {
     adUrl: "https://hcmue.edu.vn/vi/gioi-thieu/tam-nhin-su-mang",
     imageSrc: "https://hcmue.edu.vn/images/TruongDHSP.jpg",
     title: "Đại học Sư phạm TP.HCM",

@@ -12,7 +12,6 @@ import {
   PhotoIcon,
   VideoCameraIcon,
 } from "@heroicons/react/24/outline";
-import EmojiComponent from "../ui/emoji";
 import EmojiPicker from "emoji-picker-react";
 
 export default function CreatePost({ onPostCreated, refreshPosts }) {

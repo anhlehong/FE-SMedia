@@ -172,7 +172,7 @@ export default function GroupPage() {
   }
 
   return (
-    <>
+    <div className="mr-16 ml-8">
       <GroupHeader
         groupDetails={groupDetails}
         isMember={isMember}
@@ -199,6 +199,6 @@ export default function GroupPage() {
         )}
         {activeTab === "report" && <GroupReport group={groupDetails} />}
       </>
-    </>
+    </div>
   );
 }

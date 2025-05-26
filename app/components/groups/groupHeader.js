@@ -47,13 +47,15 @@ export default function GroupHeader({
             console.log("Image load error, replacing with fallback");
           }}
         />
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="absolute flex bottom-3 right-6 px-4 py-2 bg-gray-200 hover:bg-gray-400 shadow-md rounded-md font-medium"
-        >
-          <PencilSquareIcon className="w-5 h-5 mr-2" />
-          Chỉnh sửa
-        </button>
+        {isAdmin && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="absolute flex bottom-3 right-6 px-4 py-2 bg-gray-200 hover:bg-gray-400 shadow-md rounded-md font-medium"
+          >
+            <PencilSquareIcon className="w-5 h-5 mr-2" />
+            Chỉnh sửa
+          </button>
+        )}
       </div>
 
       {/* Group info */}
