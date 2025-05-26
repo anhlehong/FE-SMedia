@@ -42,7 +42,8 @@ export function useWebSocket() {
         }
 
         try {
-            const wsUrl = `ws://localhost:5295/ws?token=${token}`
+            // const wsUrl = `ws://localhost:5295/ws?token=${token}`
+            const wsUrl = `wss://379c-113-185-85-99.ngrok-free.app/ws?token=${token}`;
             console.log("🚀 [WebSocket] Creating connection to:", wsUrl)
 
             const socket = new WebSocket(wsUrl)
