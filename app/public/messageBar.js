@@ -78,11 +78,7 @@ export default function MessageBar() {
         id="default-sidebar"
         className={`fixed top-16 right-0 w-72 h-full pb-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 transition-all duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } md:translate-x-0 md:hidden lg:block border-l border-gray-100 overflow-auto`}
-        // className={`fixed top-16 right-0 w-72 h-full pb-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 transition-all duration-300 ease-in-out ${
-        //  isOpen ? "translate-x-0" : "translate-x-full"
-        // } md:translate-x-0 md:hidden lg:block border-l border-gray-100 overflow-auto`}
-
+        } md:translate-x-0 md:hidden lg:block border-l border-gray-100`}
         aria-label="Sidebar"
       >
         <div className="h-full px-4 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300 scrollbar-track-transparent">

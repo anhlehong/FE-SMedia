@@ -103,12 +103,12 @@ export default function ClientLayout({ children }) {
   }, [isAuthPage]); // Only depend on isAuthPage
 
   return (
-    <FollowProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <WebSocketProvider value={{ ...webSocketHook, userInfo }}>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <WebSocketProvider value={{ ...webSocketHook, userInfo }}>
+          <FollowProvider>
             <div className="bg-gray-100 min-h-screen">
               {/* Fixed Navbar */}
               {!isAuthPage && (
@@ -147,9 +147,9 @@ export default function ClientLayout({ children }) {
                 {!isAuthPage && <MessageBar />}
               </div>
             </div>
-          </WebSocketProvider>
-        </body>
-      </html>
-    </FollowProvider>
+          </FollowProvider>
+        </WebSocketProvider>
+      </body>
+    </html>
   );
 }
