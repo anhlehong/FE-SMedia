@@ -9,6 +9,7 @@ export function useWebSocket() {
     const wsRef = useRef(null)
     const isConnecting = useRef(false)
     const tokenRef = useRef(null)
+    const loadedConversations = useRef(new Set())
 
     const connect = useCallback((token) => {
         console.log("🔌 [WebSocket] Connect called with token:", token?.substring(0, 20) + "...")
@@ -139,6 +140,21 @@ export function useWebSocket() {
         }
     }, [])
 
+    // Clear messages for specific conversation
+    const clearConversationMessages = useCallback((targetId, myId) => {
+        console.log(`🧹 [WebSocket] Clearing messages for conversation: ${targetId}`)
+        setMessages((prev) =>
+            prev.filter(
+                (msg) =>
+                    !(
+                        msg.type === "text" &&
+                        ((msg.senderId === myId && msg.receiverId === targetId) ||
+                            (msg.senderId === targetId && msg.receiverId === myId))
+                    ),
+            ),
+        )
+    }, [])
+
     // Get messages for specific conversation
     const getConversationMessages = useCallback(
         (targetId, myId) => {
@@ -172,8 +188,23 @@ export function useWebSocket() {
 
     // Get message history
     const getMessageHistory = useCallback(
-        (receiverId, page = 1, pageSize = 50) => {
+        (receiverId, page = 1, pageSize = 50, myId = null) => {
+            const conversationKey = `${receiverId}-${page}-${pageSize}`
+
+            if (loadedConversations.current.has(conversationKey)) {
+                console.log("📚 [WebSocket] History already loaded for:", conversationKey)
+                return true
+            }
+
             console.log("📚 [WebSocket] Getting history for:", receiverId)
+
+            // Clear existing messages for this conversation before loading history
+            if (myId) {
+                clearConversationMessages(receiverId, myId)
+            }
+
+            loadedConversations.current.add(conversationKey)
+
             return sendMessage({
                 action: "gethistory",
                 receiverId,
@@ -181,8 +212,13 @@ export function useWebSocket() {
                 pageSize,
             })
         },
-        [sendMessage],
+        [sendMessage, clearConversationMessages],
     )
+
+    // Add method to clear loaded conversations
+    const clearLoadedConversations = useCallback(() => {
+        loadedConversations.current.clear()
+    }, [])
 
     return {
         connected,
@@ -192,7 +228,9 @@ export function useWebSocket() {
         sendTextMessage,
         getMessageHistory,
         getConversationMessages,
+        clearConversationMessages,
         disconnect,
         setMessages,
+        clearLoadedConversations,
     }
 }
