@@ -146,7 +146,7 @@ export default function GroupsPage() {
     }
   });
   return (
-    <div className="mr-10">
+    <div className="mr-10 mt-12">
       {/* Groups Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Hội nhóm</h1>
