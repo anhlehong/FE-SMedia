@@ -4,15 +4,30 @@ import Entity from "../components/asideChat/entity";
 import { useFollowing } from "../hooks/useFollowing";
 import { getUserInfo } from "../utils/auth";
 import { useSharedFollowing } from "../context/followContext";
+import { ads } from "../data/data";
 
 export default function MessageBar() {
   // Replace mock user count with real data from API
   const [selectedEntity, setSelectedIndexEntity] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [adsState, setAdsState] = useState(ads);
 
   // Use the hook to fetch following users
   const { followingUsers, isLoading, error, hasMore, loadMore } =
     useSharedFollowing();
+
+  const activeAds = adsState
+    .filter((ad) => ad.isActive)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 2);
+
+  const toggleAdStatus = (title) => {
+    setAdsState((prev) =>
+      prev.map((ad) =>
+        ad.title === title ? { ...ad, isActive: !ad.isActive } : ad
+      )
+    );
+  };
 
   const handleClickEntity = (id) => {
     setSelectedIndexEntity(id);
@@ -58,9 +73,60 @@ export default function MessageBar() {
         id="default-sidebar"
         className={`fixed top-16 right-0 w-72 h-full pb-16 bg-white/95 backdrop-blur-sm shadow-lg z-40 transition-all duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } md:translate-x-0 md:hidden lg:block border-l border-gray-100`}
+        } md:translate-x-0 md:hidden lg:block border-l border-gray-100 overflow-auto`}
         aria-label="Sidebar"
       >
+        <div className="mt-6 mx-4">
+          <h3 className="font-semibold text-gray-500">Được tài trợ</h3>
+
+          {activeAds.map((ad, index) => (
+            <div
+              key={index}
+              className="relative p-3 bg-gray-100 rounded-md mt-2 hover:bg-gray-200 transition flex gap-2 items-center"
+            >
+              <a
+                href={ad.adUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-2 items-center"
+              >
+                <img
+                  src={ad.imageSrc}
+                  alt={ad.title}
+                  className="rounded-md w-24 h-24"
+                />
+                <p className="text-sm font-medium">{ad.title}</p>
+              </a>
+
+              {/* Nút chuyển đổi trạng thái */}
+              <button
+                onClick={() => toggleAdStatus(ad.title)}
+                className="absolute top-2 right-2 text-gray-600 hover:text-blue-500"
+              >
+                🔄
+              </button>
+            </div>
+          ))}
+
+          {/* Hiển thị quảng cáo đã ẩn */}
+          {adsState
+            .filter((ad) => !ad.isActive)
+            .map((ad, index) => (
+              <div
+                key={index}
+                className="p-3 bg-gray-50 border border-gray-300 rounded-md mt-2 flex items-center justify-between"
+              >
+                <p className="text-sm text-gray-500">{ad.title} đã ẩn</p>
+                <button
+                  onClick={() => toggleAdStatus(ad.title)}
+                  className="text-sm text-blue-500 hover:text-blue-600"
+                >
+                  Hoàn tác
+                </button>
+              </div>
+            ))}
+        </div>
+
         <div className="h-full px-4 py-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300 scrollbar-track-transparent">
           {" "}
           <div className="sticky top-0 bg-white/95 backdrop-blur-sm -mx-4 px-4">
