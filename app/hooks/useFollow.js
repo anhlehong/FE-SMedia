@@ -74,8 +74,6 @@ export function useFollow() {
     setIsLoading(true);
     setError(null);
 
-    console.log(followedId);
-
     try {
       const userInfo = getUserInfo();
       if (!userInfo || !userInfo.userId) {
@@ -83,6 +81,8 @@ export function useFollow() {
       }
 
       const followerId = userInfo.userId;
+      console.log(followerId);
+      console.log(followedId);
       const url = `/api/proxy/follow?followerId=${followerId}&followedId=${followedId}`;
 
       const response = await fetch(url, {
@@ -91,7 +91,7 @@ export function useFollow() {
           "Content-Type": "application/json",
         },
       });
-
+      console.log(response);
       const data = await response.json();
 
       if (!response.ok) {

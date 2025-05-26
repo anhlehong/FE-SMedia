@@ -6,6 +6,7 @@ import MessageBar from "./public/messageBar";
 import LeftSidebar from "./components/sidebar/leftSidebar";
 import localFont from "next/font/local";
 import "./globals.css";
+import { FollowProvider } from "./context/followContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,49 +32,51 @@ export default function RootLayout({ children }) {
   const isAuthPage = pathname === "/signin" || pathname === "/signup";
 
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="bg-gray-100 min-h-screen">
-          {/* Fixed navbar - don't show on signin and signup pages */}
-          {!isAuthPage && (
-            <div className="fixed w-full z-50">
-              <NavBar />
-            </div>
-          )}
+    <FollowProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <div className="bg-gray-100 min-h-screen">
+            {/* Fixed navbar - don't show on signin and signup pages */}
+            {!isAuthPage && (
+              <div className="fixed w-full z-50">
+                <NavBar />
+              </div>
+            )}
 
-          {/* Main layout */}
-          <div
-            className={`${
-              !isAuthPage ? "pt-16" : ""
-            } flex flex-col md:flex-row`}
-          >
-            {/* Left sidebar - don't show on signin and signup pages */}
-            {!isAuthPage && <LeftSidebar />}
-
-            {/* Main content area - will be filled by page components */}
+            {/* Main layout */}
             <div
-              className={`flex-1 flex justify-center ${
-                isAuthPage ? "w-full" : ""
-              }`}
+              className={`${
+                !isAuthPage ? "pt-16" : ""
+              } flex flex-col md:flex-row`}
             >
-              <main
-                className={`${
-                  isAuthPage
-                    ? "w-full"
-                    : "w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl"
+              {/* Left sidebar - don't show on signin and signup pages */}
+              {!isAuthPage && <LeftSidebar />}
+
+              {/* Main content area - will be filled by page components */}
+              <div
+                className={`flex-1 flex justify-center ${
+                  isAuthPage ? "w-full" : ""
                 }`}
               >
-                {children}
-              </main>
-            </div>
+                <main
+                  className={`${
+                    isAuthPage
+                      ? "w-full"
+                      : "w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl"
+                  }`}
+                >
+                  {children}
+                </main>
+              </div>
 
-            {/* Right sidebar (MessageBar) - don't show on signin and signup pages */}
-            {!isAuthPage && <MessageBar />}
+              {/* Right sidebar (MessageBar) - don't show on signin and signup pages */}
+              {!isAuthPage && <MessageBar />}
+            </div>
           </div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
+    </FollowProvider>
   );
 }

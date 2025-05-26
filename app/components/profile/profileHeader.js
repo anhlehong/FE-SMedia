@@ -4,6 +4,8 @@ import Image from "next/image";
 import EditProfileModal from "./editProfileModal";
 import { useFollow } from "../../hooks/useFollow";
 import { showToast } from "../../utils/toast";
+import useFollowing from "@/app/hooks/useFollowing";
+import { useSharedFollowing } from "@/app/context/followContext";
 
 export default function ProfileHeader({
   profileData,
@@ -15,6 +17,7 @@ export default function ProfileHeader({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { followUser, unfollowUser, checkFollowStatus, isLoading } =
     useFollow();
+  const { triggerRefresh } = useSharedFollowing();
 
   useEffect(() => {
     // Check if the current user is following this profile when the component mounts
@@ -57,6 +60,7 @@ export default function ProfileHeader({
         setIsFollowing(true);
         showToast("Đã theo dõi người dùng", "success");
       }
+      triggerRefresh();
     } catch (error) {
       console.error("Error toggling follow status:", error);
       showToast("Có lỗi xảy ra. Vui lòng thử lại sau.", "error");

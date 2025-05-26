@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Entity from "../components/asideChat/entity";
 import { useFollowing } from "../hooks/useFollowing";
 import { getUserInfo } from "../utils/auth";
+import { useSharedFollowing } from "../context/followContext";
 
 export default function MessageBar() {
   // Replace mock user count with real data from API
@@ -10,9 +11,8 @@ export default function MessageBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   // Use the hook to fetch following users
-  // const { followingUsers, isLoading, error, hasMore, loadMore } = useFollowing(0, 20);
   const { followingUsers, isLoading, error, hasMore, loadMore } =
-    useFollowing(20); // ✅ chỉ truyền take
+    useSharedFollowing();
 
   const handleClickEntity = (id) => {
     setSelectedIndexEntity(id);
