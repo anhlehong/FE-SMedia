@@ -16,63 +16,38 @@ export const ads = [
     isActive: true,
   },
   {
-    adUrl: "https://example.com/ad1",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Ưu đãi sốc - Giảm 50%",
+    adUrl: "https://cellphones.com.vn/iphone-15.html?product_id=68894",
+    imageSrc:
+      "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-15-plus_1__1.png",
+    title: "Iphone 15",
     isActive: true,
   },
   {
-    adUrl: "https://example.com/ad2",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Giảm giá cực lớn - Chỉ hôm nay!",
+    adUrl: "https://cellphones.com.vn/iphone-16.html",
+    imageSrc:
+      "https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-16-1_1.png",
+    title: "Iphone 16",
     isActive: true,
   },
   {
-    adUrl: "https://example.com/ad3",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Mua 1 tặng 1 - Số lượng có hạn!",
-    isActive: false,
-  },
-  {
-    adUrl: "https://example.com/ad4",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Siêu phẩm mới - Đặt hàng ngay!",
+    adUrl:
+      "https://www.google.com/url?sa=i&url=https%3A%2F%2Fteddy.vn%2Fgia-dinh-gau-bong-butter-bear-44197&psig=AOvVaw3nBKmLRr9wwqMiAkgKiMB8&ust=1748320155538000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJiZo6KmwI0DFQAAAAAdAAAAABAE",
+    imageSrc:
+      "https://teddy.vn/wp-content/uploads/2024/08/gia-dinh-butter-bear-3.jpg",
+    title: "Gia đình gấu bông",
     isActive: true,
   },
   {
-    adUrl: "https://example.com/ad5",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Săn sale mỗi ngày!",
-    isActive: false,
-  },
-  {
-    adUrl: "https://example.com/ad6",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Độc quyền giảm giá 40%!",
+    adUrl: "https://hcmue.edu.vn/vi/gioi-thieu/tam-nhin-su-mang",
+    imageSrc: "https://hcmue.edu.vn/images/TruongDHSP.jpg",
+    title: "Đại học Sư phạm TP.HCM",
     isActive: true,
   },
   {
-    adUrl: "https://example.com/ad7",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Cơ hội vàng - Mua ngay kẻo lỡ!",
-    isActive: true,
-  },
-  {
-    adUrl: "https://example.com/ad8",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Ưu đãi thành viên VIP!",
-    isActive: false,
-  },
-  {
-    adUrl: "https://example.com/ad9",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Bùng nổ khuyến mãi - Giá sốc!",
-    isActive: true,
-  },
-  {
-    adUrl: "https://example.com/ad10",
-    imageSrc: "https://via.placeholder.com/150",
-    title: "Mua sắm thông minh - Giá tốt mỗi ngày!",
+    adUrl: "https://www.coca-cola.com/vn/vi",
+    imageSrc:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpyk_jri6J5Qz0RsTpG_ZOIQDlLeckY7ZU1g&s",
+    title: "Coca Cola",
     isActive: true,
   },
 ];
