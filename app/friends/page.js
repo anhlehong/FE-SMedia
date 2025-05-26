@@ -51,7 +51,7 @@ export default function FriendsPage() {
   //   const userId = userInfo ? userInfo.userId : null;
   const [userIds, setUserIds] = useState([]);
 
-  const { followingUsers, isLoading } = useFollowing(20);
+  const { followingUsers, isLoading, refresh } = useFollowing(20);
 
   useEffect(() => {
     if (!isLoading && followingUsers.length > 0) {
