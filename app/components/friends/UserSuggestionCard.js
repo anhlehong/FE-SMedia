@@ -7,6 +7,7 @@ import { useState } from "react";
 import axios from "axios";
 import useFollow from "@/app/hooks/useFollow";
 import { showToast } from "@/app/utils/toast";
+import { useSharedFollowing } from "@/app/context/followContext";
 
 export default function UserSuggestionCard({
   user,
@@ -21,29 +22,7 @@ export default function UserSuggestionCard({
   const { followUser, unfollowUser, checkFollowStatus, isLoading } =
     useFollow();
   const [isFollowingUser, setIsFollowingUser] = useState(isFollowing);
-
-  // Handle follow/unfollow action
-  // const handleFollowToggle = async () => {
-  //   if (!user || !user.id) return;
-
-  //   setLoading(true);
-  //   try {
-  //     // Call the follow API
-  //     await axios.post(`/api/proxy/follow/${user.id}`);
-
-  //     // Update local state
-  //     setIsFollowingUser(!isFollowingUser);
-
-  //     // Notify parent component
-  //     if (onFollowToggle) {
-  //       onFollowToggle(user.id, !isFollowingUser);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error toggling follow status:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const { triggerRefresh } = useSharedFollowing();
 
   const handleFollowToggle = async () => {
     if (isProcessing) return;
@@ -68,6 +47,7 @@ export default function UserSuggestionCard({
       showToast("Có lỗi xảy ra. Vui lòng thử lại sau.", "error");
     } finally {
       setIsProcessing(false);
+      triggerRefresh();
     }
   };
 
