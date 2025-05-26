@@ -5,6 +5,8 @@ import https from "https";
 
 const TOKEN_NAME = "authToken";
 
+export const dynamic = 'force-dynamic';
+
 // Helper function to get token from cookies in server components
 function getTokenFromServerCookies() {
     const cookieStore = cookies();
