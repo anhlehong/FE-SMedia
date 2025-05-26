@@ -5,13 +5,20 @@ import { useWebSocketContext } from "../../contexts/websocket-context"
 export default function ChatBox({ onClose, name, targetId }) {
     const [message, setMessage] = useState("")
     const [isLoading, setIsLoading] = useState(false)
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false)
     const messagesEndRef = useRef(null)
-    const historyLoadedRef = useRef(false)
 
     console.log(`💬 [ChatBox] Opened for: ${name} (${targetId})`)
 
     // Get WebSocket context
-    const { connected, sendTextMessage, getMessageHistory, getConversationMessages, userInfo } = useWebSocketContext()
+    const {
+        connected,
+        sendTextMessage,
+        getMessageHistory,
+        getConversationMessages,
+        clearConversationMessages,
+        userInfo,
+    } = useWebSocketContext()
 
     // Get messages for this conversation
     const conversationMessages = getConversationMessages(targetId, userInfo?.userId)
@@ -23,33 +30,20 @@ export default function ChatBox({ onClose, name, targetId }) {
 
     // Load message history when chat opens and WebSocket is connected
     useEffect(() => {
-        if (connected && targetId && userInfo?.userId && !historyLoadedRef.current) {
-            console.log(`📚 [ChatBox] Loading history for ${targetId}`)
+        if (connected && targetId && userInfo?.userId) {
+            console.log(`🧹 [ChatBox] Clearing and loading history for ${targetId}`)
+            setIsLoadingHistory(true)
 
-            // Set flag immediately to prevent duplicate calls
-            historyLoadedRef.current = true
-
-            // Add small delay to ensure WebSocket is fully ready
-            const timeoutId = setTimeout(() => {
-                getMessageHistory(targetId, 1, 50)
+            // Clear existing messages first, then load history
+            setTimeout(() => {
+                getMessageHistory(targetId, 1, 50, userInfo.userId)
+                // Stop loading indicator after a delay
+                setTimeout(() => {
+                    setIsLoadingHistory(false)
+                }, 1000)
             }, 100)
-
-            return () => {
-                clearTimeout(timeoutId)
-            }
         }
     }, [connected, targetId, userInfo?.userId, getMessageHistory])
-
-    // Reset history loaded when targetId changes
-    useEffect(() => {
-        console.log(`🔄 [ChatBox] Target changed to: ${targetId}, resetting history flag`)
-        historyLoadedRef.current = false
-    }, [targetId])
-
-    // Debug effect to track when history is loaded
-    useEffect(() => {
-        console.log(`🔍 [ChatBox] History loaded state: ${historyLoadedRef.current} for ${targetId}`)
-    }, [historyLoadedRef.current, targetId])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -102,6 +96,9 @@ export default function ChatBox({ onClose, name, targetId }) {
                         title={connected ? "Đã kết nối" : "Mất kết nối"}
                     />
                     <span className="text-xs text-gray-500">({conversationMessages.length})</span>
+                    {isLoadingHistory && (
+                        <div className="w-3 h-3 border border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    )}
                 </div>
                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-lg font-bold">
                     ✕
@@ -114,6 +111,11 @@ export default function ChatBox({ onClose, name, targetId }) {
                     <div className="text-center text-red-500 py-4">
                         <p>⚠️ Mất kết nối WebSocket</p>
                         <p className="text-sm">Vui lòng đợi kết nối lại...</p>
+                    </div>
+                ) : isLoadingHistory ? (
+                    <div className="text-center text-blue-500 py-4">
+                        <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                        <p>Đang tải lịch sử chat...</p>
                     </div>
                 ) : conversationMessages.length === 0 ? (
                     <div className="text-center text-gray-500 py-4">
@@ -150,11 +152,11 @@ export default function ChatBox({ onClose, name, targetId }) {
                         onChange={(e) => setMessage(e.target.value)}
                         className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder={connected ? "Nhập tin nhắn..." : "Đang kết nối..."}
-                        disabled={!connected || isLoading}
+                        disabled={!connected || isLoading || isLoadingHistory}
                     />
                     <button
                         type="submit"
-                        disabled={!connected || !message.trim() || isLoading}
+                        disabled={!connected || !message.trim() || isLoading || isLoadingHistory}
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                     >
                         {isLoading ? (
