@@ -158,3 +158,79 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: message }, { status });
   }
 }
+
+/**
+ * Route handler for deleting a group by ID
+ * DELETE /api/proxy/group/{groupId}
+ */
+export async function DELETE(request, { params }) {
+  try {
+    const groupId = params.id;
+    if (!groupId) {
+      return NextResponse.json(
+        { error: "Group ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Get authentication token
+    const token = getTokenFromServerCookies();
+    if (!token) {
+      return NextResponse.json(
+        { error: "You must be logged in to delete a group" },
+        { status: 401 }
+      );
+    }
+
+    console.log(`Deleting group with ID: ${groupId}`);
+
+    // Make the DELETE request to the backend API
+    const apiUrl = `${process.env.NEXT_PUBLIC_FQDN_BACKEND}/api/groups/${groupId}`;
+
+    const response = await axios.delete(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      httpsAgent, // Use the agent that ignores certificate validation
+    });
+
+    console.log("Group deleted successfully:", response.data);
+
+    // Return success response
+    return NextResponse.json(
+      { 
+        message: "Group deleted successfully", 
+        groupId: groupId 
+      }, 
+      { status: 200 }
+    );
+    
+  } catch (error) {
+    console.error("Error deleting group:", error);
+
+    // Format error response with more detailed information
+    const status = error.response?.status || 500;
+    let message = "An error occurred while deleting the group";
+
+    if (error.response?.data) {
+      message =
+        error.response.data.message || error.response.data.error || message;
+    }
+
+    // Handle specific error codes
+    if (status === 404) {
+      message = "Group not found";
+    } else if (status === 401) {
+      message = "You need to be logged in to delete a group";
+    } else if (status === 403) {
+      message = "You don't have permission to delete this group";
+    } else if (status === 409) {
+      message = "Cannot delete group with existing members";
+    } else if (status === 429) {
+      message = "Too many requests, please try again later";
+    }
+
+    return NextResponse.json({ error: message }, { status });
+  }
+}

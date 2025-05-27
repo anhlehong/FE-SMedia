@@ -4,7 +4,7 @@ import Image from "next/image";
 import { uploadToAzureStorage, getMediaTypeFromMimeType } from "../../utils/azureStorage";
 import { showToast } from "../../utils/toast";
 
-export default function GroupCreatePost({ groupId, onPostCreated, refreshPosts }) {
+export default function GroupCreatePost({ groupId, onPostCreated, refreshPosts, isAdmin }) {
     const [content, setContent] = useState("");
     const [showMediaInput, setShowMediaInput] = useState(false);
     const [mediaPreviewUrl, setMediaPreviewUrl] = useState("");
@@ -56,7 +56,7 @@ export default function GroupCreatePost({ groupId, onPostCreated, refreshPosts }
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(requestBody)
-            })
+            });
             
             if (!response.ok) {
                 const errorData = await response.json();
@@ -64,7 +64,10 @@ export default function GroupCreatePost({ groupId, onPostCreated, refreshPosts }
             }
             
             const data = await response.json();
-              // Show appropriate message based on whether posts need approval
+            
+            
+            
+            // Show appropriate message based on whether posts need approval
             if (data.isApproved === false) {
                 showToast("Bài viết đang chờ được xác nhận", "info");
             } else {

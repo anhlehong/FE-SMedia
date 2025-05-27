@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useGroupDetails } from "../../hooks/useGroupDetails";
 import { showToast } from "../../utils/toast";
-
+import { getUserInfo } from "../../utils/auth"; 
 // Import components
 import GroupHeader from "../../components/groups/groupHeader";
 import GroupDiscussionTab from "../../components/groups/groupDiscussionTab";
@@ -20,6 +20,7 @@ export default function GroupPage() {
   // State variables
   const [activeTab, setActiveTab] = useState("discussion");
   const [isMember, setIsMember] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { refreshGroups } = useMyGroups();
 
   // fix: Memoize onSuccess callback to prevent re-creation on every render
@@ -46,7 +47,14 @@ export default function GroupPage() {
     onSuccess,
     onError,
   });
-
+  useEffect(() => {
+    if (groupDetails) {
+      const userInfo = getUserInfo();
+      const userId = userInfo ? userInfo.userId : null;
+      const isAdmin = groupDetails.admins.includes(userId) || false;
+      setIsAdmin(isAdmin);
+    }
+  }, [groupDetails]);
   // fix: Add cleanup flag to avoid setting state if component unmounted
   useEffect(() => {
     if (!groupId) return; // fix: guard clause to avoid invalid calls
@@ -182,13 +190,14 @@ export default function GroupPage() {
         handleJoinPrivateGroup={handleJoinPrivateGroup}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        isAdmin={isAdmin}
       />
       <>
         {activeTab === "discussion" && (
-          <GroupDiscussionTab isMember={isMember} groupId={groupId} />
+          <GroupDiscussionTab isMember={isMember} groupId={groupId} isAdmin={isAdmin}/>
         )}
         {activeTab === "members" && (
-          <GroupMembersTab groupDetails={groupDetails} />
+          <GroupMembersTab groupDetails={groupDetails} isAdmin={isAdmin}/>
         )}
         {activeTab === "about" && <GroupAboutTab groupDetails={groupDetails} />}
         {activeTab === "pendingPosts" && (
