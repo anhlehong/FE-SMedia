@@ -65,31 +65,10 @@ export default function GroupCreatePost({ groupId, onPostCreated, refreshPosts, 
             
             const data = await response.json();
             
-            // If user is admin and we have a postId, send approval request
-            if (data.postId && isAdmin) { // You'll need to pass isAdmin as a prop
-                try {
-                    const approvalResponse = await fetch("/api/proxy/group-posts/approve", {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            groupId: groupId,
-                            postId: data.postId,
-                            approve: true
-                        })
-                    });
-                    
-                    if (!approvalResponse.ok) {
-                        console.warn("Failed to auto-approve post");
-                    }
-                } catch (approvalError) {
-                    console.warn("Error auto-approving post:", approvalError);
-                }
-            }
+            
             
             // Show appropriate message based on whether posts need approval
-            if (data.isApproved === false && !isAdmin) {
+            if (data.isApproved === false) {
                 showToast("Bài viết đang chờ được xác nhận", "info");
             } else {
                 showToast("Bài viết đã được đăng thành công!", "success");

@@ -42,7 +42,7 @@ export async function GET(request) {
                 { status: 400 }
             );
         }
-
+        console.log("Fetching group members for groupId:", groupId);
         const apiUrl = `${process.env.NEXT_PUBLIC_FQDN_BACKEND}/api/group-members/${groupId}/members`;
         
         const response = await axios.get(
