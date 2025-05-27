@@ -42,7 +42,19 @@ export function useWebSocket() {
         }
 
         try {
-            const wsUrl = `ws://localhost:5295/ws?token=${token}`
+            const rawUrl = process.env.NEXT_PUBLIC_FQDN_BACKEND || '';
+
+            // Xử lý chuỗi: bỏ http(s):// và dấu ; ở cuối nếu có
+            const cleanedUrl = rawUrl.replace(/^https?:\/\//, '').replace(/;$/, '');
+
+            // Xác định giao thức WebSocket tương ứng
+            const isSecure = rawUrl.startsWith('https://');
+            const wsProtocol = isSecure ? 'wss' : 'ws';
+
+            // Tạo WebSocket URL đầy đủ
+            const wsUrl = `${wsProtocol}://${cleanedUrl}/ws?token=${token}`;
+
+
             console.log("🚀 [WebSocket] Creating connection to:", wsUrl)
 
             const socket = new WebSocket(wsUrl)
