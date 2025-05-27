@@ -7,7 +7,7 @@ import { showToast } from "@/app/utils/toast";
 import { useGroupPosts } from "@/app/hooks/useGroupPosts";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-export default function GroupDiscussionTab({ isMember, groupId }) {
+export default function GroupDiscussionTab({ isMember, groupId, isAdmin }) {
   if(!isMember){
     return (
       <NonMemberView formattedPosts={[]} loading={false} />
@@ -68,6 +68,7 @@ export default function GroupDiscussionTab({ isMember, groupId }) {
               groupId={groupId}
               onPostCreated={handleAddNewPost}
               refreshPosts={refreshPosts}
+              isAdmin={isAdmin}
             />
           </div>
           <div className="mt-4">

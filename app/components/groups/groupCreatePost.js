@@ -89,7 +89,7 @@ export default function GroupCreatePost({ groupId, onPostCreated, refreshPosts, 
             }
             
             // Show appropriate message based on whether posts need approval
-            if (data.isApproved === false) {
+            if (data.isApproved === false && !isAdmin) {
                 showToast("Bài viết đang chờ được xác nhận", "info");
             } else {
                 showToast("Bài viết đã được đăng thành công!", "success");

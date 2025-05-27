@@ -15,10 +15,11 @@ export default function GroupHeader({
   handleJoinPrivateGroup,
   activeTab,
   setActiveTab,
+  isAdmin = false
 }) {
-  const userInfo = getUserInfo();
-  const userId = userInfo ? userInfo.userId : null;
-  const isAdmin = groupDetails.createdBy == userId;
+  // const userInfo = getUserInfo();
+  // const userId = userInfo ? userInfo.userId : null;
+  // const isAdmin = groupDetails.createdBy == userId;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Format the creation date for display
