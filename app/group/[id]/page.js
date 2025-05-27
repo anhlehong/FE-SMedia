@@ -51,7 +51,7 @@ export default function GroupPage() {
     if (groupDetails) {
       const userInfo = getUserInfo();
       const userId = userInfo ? userInfo.userId : null;
-      const isAdmin = groupDetails.createdBy === userId;
+      const isAdmin = groupDetails.admins.includes(userId) || false;
       setIsAdmin(isAdmin);
     }
   }, [groupDetails]);
@@ -197,7 +197,7 @@ export default function GroupPage() {
           <GroupDiscussionTab isMember={isMember} groupId={groupId} isAdmin={isAdmin}/>
         )}
         {activeTab === "members" && (
-          <GroupMembersTab groupDetails={groupDetails} />
+          <GroupMembersTab groupDetails={groupDetails} isAdmin={isAdmin}/>
         )}
         {activeTab === "about" && <GroupAboutTab groupDetails={groupDetails} />}
         {activeTab === "pendingPosts" && (

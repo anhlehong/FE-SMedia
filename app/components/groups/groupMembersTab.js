@@ -3,16 +3,26 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { showToast } from "@/app/utils/toast";
+import { TrashIcon } from "@heroicons/react/24/outline";
+import { getUserInfo } from "@/app/utils/auth";
 
-export default function GroupMembersTab({ groupDetails }) {
+export default function GroupMembersTab({ groupDetails, isAdmin }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [removingMembers, setRemovingMembers] = useState(new Set());
 
   // Extract groupId from groupDetails
-  const groupId = groupDetails?.groupId;
+  const groupId = groupDetails.groupId;
 
+  // Get current user info to determine permissions
+  const userInfo = getUserInfo();
+  const currentUserId = userInfo ? userInfo.userId : null;
+
+  useEffect(() => {
+    console.log("Group member",members);
+},[members])
   useEffect(() => {
     if (groupId) {
       fetchGroupMembers();
@@ -37,7 +47,11 @@ export default function GroupMembersTab({ groupDetails }) {
       }
 
       const data = await response.json();
-      setMembers(data || []);
+      
+      // Filter out removed members before setting state
+      const activeMembers = data ? data.filter(member => member.status?.toLowerCase() !== "removed") : [];
+      setMembers(activeMembers);
+      
     } catch (err) {
       console.error("Error fetching group members:", err);
       setError(err.message);
@@ -56,6 +70,44 @@ export default function GroupMembersTab({ groupDetails }) {
       ]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRemoveMember = async (userId, username) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa ${username} khỏi nhóm không?`)) {
+      return;
+    }
+
+    setRemovingMembers(prev => new Set(prev).add(userId));
+
+    try {
+      const response = await fetch(`/api/proxy/group-members?groupId=${groupId}&userId=${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to remove member");
+      }
+
+      // Remove member from local state
+      setMembers(prevMembers => 
+        prevMembers.filter(member => member.userId !== userId)
+      );
+
+      showToast(`Đã xóa ${username} khỏi nhóm`, "success");
+    } catch (error) {
+      console.error("Error removing member:", error);
+      showToast("Không thể xóa thành viên, vui lòng thử lại", "error");
+    } finally {
+      setRemovingMembers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
     }
   };
 
@@ -151,6 +203,14 @@ export default function GroupMembersTab({ groupDetails }) {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  // Check if current member can be removed
+  const canRemoveMember = (member) => {
+    // Admin can remove members, but not themselves and not other admins
+    return isAdmin && 
+           member.userId !== currentUserId && 
+           member.role?.toLowerCase() !== "admin";
   };
 
   // Filter members based on search query
@@ -286,6 +346,22 @@ export default function GroupMembersTab({ groupDetails }) {
                     Xem trang cá nhân
                   </button>
                 </Link>
+
+                {/* Remove Member Button - Only visible to admins for removable members */}
+                {canRemoveMember(member) && (
+                  <button
+                    onClick={() => handleRemoveMember(member.userId, member.username)}
+                    disabled={removingMembers.has(member.userId)}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    title="Xóa khỏi nhóm"
+                  >
+                    {removingMembers.has(member.userId) ? (
+                      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-red-500"></div>
+                    ) : (
+                      <TrashIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           ))}
