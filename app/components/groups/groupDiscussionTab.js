@@ -1,7 +1,7 @@
 "use client";
 import React, { memo } from "react";
 import FeedSection from "@/app/components/feed/feedSection";
-import PostCard from "@/app/components/feed/postCardWithMedia";
+import PostCardGroup from "./postCardGroup";
 import GroupCreatePost from "@/app/components/groups/groupCreatePost";
 import { showToast } from "@/app/utils/toast";
 import { useGroupPosts } from "@/app/hooks/useGroupPosts";
@@ -84,10 +84,12 @@ export default function GroupDiscussionTab({ isMember, groupId, isAdmin }) {
               >
                 <div className="space-y-6">
                   {formattedPosts.map((post) => (
-                    <PostCard
+                    <PostCardGroup
                       key={post.id}
                       post={post}
                       onLike={() => handleLike(post.id)}
+                      isAdmin={isAdmin}
+                      refreshPosts={refreshPosts}
                     />
                   ))}
                 </div>

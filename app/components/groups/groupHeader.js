@@ -128,16 +128,7 @@ export default function GroupHeader({
           >
             Bài viết
           </button>
-          {/* <button
-                        className={`px-4 py-3 font-medium text-sm ${
-                            activeTab === "members"
-                                ? "text-blue-500 border-b-2 border-blue-500"
-                                : "text-gray-500 hover:text-gray-700"
-                        }`}
-                        onClick={() => setActiveTab("members")}
-                    >
-                        Members
-                    </button> */}
+          
           <button
             className={`px-4 py-3 font-medium text-sm ${
               activeTab === "about"
@@ -151,6 +142,16 @@ export default function GroupHeader({
           {/* Only show admin tabs if user is admin - will implement proper admin check later */}
           {isAdmin && (
             <>
+            <button
+                        className={`px-4 py-3 font-medium text-sm ${
+                            activeTab === "members"
+                                ? "text-blue-500 border-b-2 border-blue-500"
+                                : "text-gray-500 hover:text-gray-700"
+                        }`}
+                        onClick={() => setActiveTab("members")}
+                    >
+                        Members
+                    </button>
               <button
                 className={`px-4 py-3 font-medium text-sm ${
                   activeTab === "report"
@@ -161,6 +162,7 @@ export default function GroupHeader({
               >
                 Báo cáo
               </button>
+
               <button
                 className={`px-4 py-3 font-medium text-sm ${
                   activeTab === "pendingPosts"

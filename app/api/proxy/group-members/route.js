@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import { cookies } from "next/headers";
 import https from "https";
-import { group } from "console";
 
 const TOKEN_NAME = "authToken";
 
@@ -18,12 +17,70 @@ const httpsAgent = new https.Agent({
 });
 
 /**
- * Route handler for post voting (like/unlike)
- * Using documentation from:
- * POST /api/posts/{postId}/vote
- * Toggles a vote on a specific post
+ * Route handler for fetching group members
+ * GET /api/group-members/{groupId}/members
  */
-export async function POST(request, { params }) {
+export async function GET(request) {
+    try {
+        // Get authentication token
+        const token = getTokenFromServerCookies();
+
+        if (!token) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+
+        // Get groupId from URL search params
+        const { searchParams } = new URL(request.url);
+        const groupId = searchParams.get('groupId');
+
+        if (!groupId) {
+            return NextResponse.json(
+                { error: "groupId is required" },
+                { status: 400 }
+            );
+        }
+
+        const apiUrl = `${process.env.NEXT_PUBLIC_FQDN_BACKEND}/api/group-members/${groupId}/members`;
+        
+        const response = await axios.get(
+            apiUrl,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                httpsAgent, // Use the agent that ignores certificate validation
+            }
+        );
+        
+        return NextResponse.json(response.data, { status: response.status });
+        
+    } catch (error) {
+        console.error("Error fetching group members:", error);
+        
+        if (error.response) {
+            return NextResponse.json(
+                { error: error.response.data.message || "An error occurred" },
+                { status: error.response.status }
+            );
+        }
+        
+        // Always return a response for unexpected errors
+        return NextResponse.json(
+            { error: error.message || "An unexpected error occurred" },
+            { status: 500 }
+        );
+    }
+}
+
+/**
+ * Route handler for requesting to join a group
+ * POST /api/group-members/request
+ */
+export async function POST(request) {
     try {
         // Get authentication token
         const token = getTokenFromServerCookies();
