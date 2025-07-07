@@ -3,6 +3,7 @@
 This repository contains the frontend for **Social Network Development**, a dynamic web application designed for seamless social interactions. Built with Next.js and React 18, it provides an intuitive user interface for secure authentication, real-time messaging, group management, and social networking features. The frontend integrates with the .NET 8.0 backend to deliver a responsive and engaging user experience, leveraging modern libraries and tools for performance and scalability.
 
 ## Table of Contents
+- [Preview](#preview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Related Repositories](#related-repositories)
@@ -10,9 +11,44 @@ This repository contains the frontend for **Social Network Development**, a dyna
 - [Setup Instructions](#setup-instructions)
 - [Running the Application](#running-the-application)
 - [Testing](#testing)
-- [Screenshots](#screenshots)
 - [Contributing](#contributing)
 - [License](#license)
+
+## Preview
+Below are key screens from the frontend application:
+
+- **Login Screen**: Secure user authentication interface.  
+  ![Login Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862190/Screenshot_2025-07-01_174204_dffcjs.png)
+
+- **Registration Screen**: User-friendly signup form.  
+  ![Registration Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862189/Screenshot_2025-07-01_174245_kxwsy9.png)
+
+- **OTP Verification Screen**: Secure account verification via OTP.  
+  ![OTP Verification Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862187/Screenshot_2025-07-01_174340_dzr0lk.png)
+
+- **Real-Time Chat Screen**: Interactive messaging interface.  
+  ![Real-Time Chat Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862185/Screenshot_2025-07-01_174409_ft1xxr.png)
+
+- **Friend Search Screen**: Efficient friend discovery.  
+  ![Friend Search Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862181/Screenshot_2025-07-01_174735_a5rqaa.png)
+
+- **Group Search Screen**: Browse and discover groups.  
+  ![Group Search Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862180/Screenshot_2025-07-01_174808_l9jhly.png)
+
+- **Join Group Screen**: Interface for joining groups.  
+  ![Join Group Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862182/Screenshot_2025-07-01_174640_tw0hih.png)
+
+- **Create Group Screen**: Form for creating new groups.  
+  ![Create Group Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862178/Screenshot_2025-07-01_174842_yw6jkm.png)
+
+- **Admin Report Management Screen**: Tools for managing group reports.  
+  ![Admin Report Management Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862177/Screenshot_2025-07-01_174912_y2nrzs.png)
+
+- **Post Approval Screen**: Interface for approving group posts.  
+  ![Post Approval Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862177/ph%C3%AA_duy%E1%BB%87t_b%C3%A0i_%C4%91%C4%83ng_trong_nh%C3%B3m_pwllht.png)
+
+- **Member Management Screen**: Admin tools for managing group members.  
+  ![Member Management Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862176/Screenshot_2025-07-01_174935_ul0r8s.png)
 
 ## Features
 - **Secure Authentication**: User-friendly login and registration screens with OTP verification for enhanced security.
@@ -102,42 +138,6 @@ Run linting to ensure code quality:
 ```bash
 npm run lint
 ```
-
-## Screenshots
-Below are key screens from the frontend application:
-
-- **Login Screen**: Secure user authentication interface.  
-  ![Login Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862190/Screenshot_2025-07-01_174204_dffcjs.png)
-
-- **Registration Screen**: User-friendly signup form.  
-  ![Registration Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862189/Screenshot_2025-07-01_174245_kxwsy9.png)
-
-- **OTP Verification Screen**: Secure account verification via OTP.  
-  ![OTP Verification Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862187/Screenshot_2025-07-01_174340_dzr0lk.png)
-
-- **Real-Time Chat Screen**: Interactive messaging interface.  
-  ![Real-Time Chat Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862185/Screenshot_2025-07-01_174409_ft1xxr.png)
-
-- **Friend Search Screen**: Efficient friend discovery.  
-  ![Friend Search Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862181/Screenshot_2025-07-01_174735_a5rqaa.png)
-
-- **Group Search Screen**: Browse and discover groups.  
-  ![Group Search Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862180/Screenshot_2025-07-01_174808_l9jhly.png)
-
-- **Join Group Screen**: Interface for joining groups.  
-  ![Join Group Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862182/Screenshot_2025-07-01_174640_tw0hih.png)
-
-- **Create Group Screen**: Form for creating new groups.  
-  ![Create Group Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862178/Screenshot_2025-07-01_174842_yw6jkm.png)
-
-- **Admin Report Management Screen**: Tools for managing group reports.  
-  ![Admin Report Management Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862177/Screenshot_2025-07-01_174912_y2nrzs.png)
-
-- **Post Approval Screen**: Interface for approving group posts.  
-  ![Post Approval Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862177/ph%C3%AA_duy%E1%BB%87t_b%C3%A0i_%C4%91%C4%83ng_trong_nh%C3%B3m_pwllht.png)
-
-- **Member Management Screen**: Admin tools for managing group members.  
-  ![Member Management Screen](https://res.cloudinary.com/dapvvdxw7/image/upload/v1751862176/Screenshot_2025-07-01_174935_ul0r8s.png)
 
 ## Contributing
 Contributions are welcome! Follow these steps:
